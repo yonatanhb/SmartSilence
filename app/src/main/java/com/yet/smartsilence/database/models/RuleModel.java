@@ -15,7 +15,7 @@ public class RuleModel {
     // Time-based rule fields
     private String timeStart;
     private String timeEnd;
-    private String daysOfWeek;
+    private int daysMask;
 
     // --- Getters and Setters ---
 
@@ -91,11 +91,13 @@ public class RuleModel {
         this.timeEnd = timeEnd;
     }
 
-    public String getDaysOfWeek() {
-        return daysOfWeek;
+    public int getDaysMask() {
+        return this.daysMask;
     }
 
-    public void setDaysOfWeek(String daysOfWeek) {
-        this.daysOfWeek = daysOfWeek;
+    public void setDaysMask(int daysMask){
+        this.daysMask = daysMask;
     }
+
+
 }

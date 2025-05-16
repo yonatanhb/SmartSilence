@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- עיצוב צבעים לחווית משתמש מודרנית -->
+    <color name="primary_color">#3949AB</color>
+    <color name="primary_dark_color">#303F9F</color>
+    <color name="accent_color">#FF5722</color>
+
+    <color name="background_color">#F5F7FA</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <color name="divider_color">#EEEEEE</color>
+
+    <!-- צבעים למצבים שונים של הצלצול -->
+    <color name="ringer_normal">#4CAF50</color>
+    <color name="ringer_vibrate">#FF9800</color>
+    <color name="ringer_silent">#F44336</color>
+
+    <!-- צבע רקע לימים פעילים -->
+    <color name="accent_color_light">#FFEBEE</color>
 </resources>
