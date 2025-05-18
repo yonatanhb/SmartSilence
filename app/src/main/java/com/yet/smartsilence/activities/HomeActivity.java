@@ -71,8 +71,8 @@ public class HomeActivity extends AppCompatActivity {
 
         FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> {
-            // Intent intent = new Intent(this, SettingsActivity.class);
-            // startActivity(intent);
+             Intent intent = new Intent(this, SettingsActivity.class);
+             startActivity(intent);
         });
     }
 

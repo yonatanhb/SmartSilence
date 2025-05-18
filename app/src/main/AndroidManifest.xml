@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- הרשאות כלליות לאפליקציה -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
@@ -15,33 +16,37 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartSilence"
         tools:targetApi="31">
+
+        <!-- מסך פתיחה: SplashActivity כ-Launcher -->
         <activity
-            android:name=".activities.RulesActivity"
-            android:exported="false" />
-        <!-- <activity -->
-        <!-- android:name=".HomeActivity" -->
-        <!-- android:exported="false" /> -->
-        <!-- <activity -->
-        <!-- android:name=".MainActivity" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
-        <activity
-            android:name=".activities.HomeActivity"
+            android:name=".activities.SplashActivity"
+            android:theme="@style/Theme.SmartSilence.Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+
+        <!-- מסך ראשי (הום) -->
+        <activity
+            android:name=".activities.HomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false" />
+
+        <!-- מסך ניהול חוקים -->
+        <activity
+            android:name=".activities.RulesActivity"
+            android:exported="false" />
+
+        <!-- שירות לזמנים (אם תרצה גם שירות למיקום, תוסיף דומה) -->
         <service
             android:name=".services.TimeSchedulerService"
             android:exported="false" />
-    </application>
 
+    </application>
 </manifest>

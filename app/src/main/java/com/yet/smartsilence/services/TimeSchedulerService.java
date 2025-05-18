@@ -41,18 +41,25 @@ public class TimeSchedulerService extends Service {
     }
 
     private void checkAndApplyRules() {
+        boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
+                .getBoolean("app_active", true);
+        if (!isAppActive) {
+            Log.d("SmartSilence", "App setting disabled, no change");
+            return;
+        }
+
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
             if (TimeUtils.isRuleActiveNow(rule)) {
                 setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                Log.d("SmartSilence", "חוק מופעל: עברנו למצב שקט");
+                Log.d("SmartSilence", "rule active: turn to silence mode");
                 return;
             }
         }
 
         // אם אף חוק לא תקף עכשיו – חזור למצב רגיל
         setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-        Log.d("SmartSilence", "אין חוק תקף: מצב רגיל");
+        Log.d("SmartSilence", "There is no active rule: no change");
     }
 
     private void setRingerMode(int mode) {

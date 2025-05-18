@@ -21,4 +21,5 @@
 
     <!-- צבע רקע לימים פעילים -->
     <color name="accent_color_light">#FFEBEE</color>
+    <color name="white">#FFFFFF</color>
 </resources>
