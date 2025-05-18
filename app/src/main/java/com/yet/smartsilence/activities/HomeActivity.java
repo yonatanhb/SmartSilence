@@ -59,8 +59,8 @@ public class HomeActivity extends AppCompatActivity {
     private void setupButtonListeners() {
         MaterialButton addRuleButton = findViewById(R.id.addRuleButton);
         addRuleButton.setOnClickListener(v -> {
-            // Intent intent = new Intent(this, AddEditRuleActivity.class);
-            // startActivity(intent);
+             Intent intent = new Intent(this, RulesActivity.class);
+             startActivity(intent);
         });
 
         MaterialButton editRuleButton = findViewById(R.id.editRuleButton);

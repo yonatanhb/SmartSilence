@@ -4,6 +4,7 @@ public class RuleModel {
 
     private int id;
     private String type; // "time" or "location"
+    private String ruleName;
     private boolean active;
 
     // Location-based rule fields
@@ -25,6 +26,14 @@ public class RuleModel {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
     public String getType() {
