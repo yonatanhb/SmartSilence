@@ -108,6 +108,27 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_RULES, null, values);
     }
 
+    public void insertLocationRule(String ruleName, String locationName, double latitude, double longitude, int radius, boolean active) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_TYPE, "location");
+        values.put(COLUMN_RULE_NAME, ruleName);
+        values.put(COLUMN_ACTIVE, active ? 1 : 0);
+        values.put(COLUMN_LOCATION_NAME, locationName);
+        values.put(COLUMN_LATITUDE, latitude);
+        values.put(COLUMN_LONGITUDE, longitude);
+        values.put(COLUMN_RADIUS, radius);
+
+        // לשדות שאינם רלוונטיים (חוק מיקום) - אפשר להשאיר ריקים/null
+        values.putNull(COLUMN_TIME_START);
+        values.putNull(COLUMN_TIME_END);
+        values.put(COLUMN_DAYS_MASK, 0); // לא רלוונטי למיקום
+
+        db.insert(TABLE_RULES, null, values);
+    }
+
+
     private String getTimePlusMinutes(int minutes) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, minutes);
