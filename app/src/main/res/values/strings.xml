@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">SmartSilence</string>
     <string name="splash_logo_desc">לוגו SmartSilence</string>
+
+    <!-- Notification Channel -->
+    <string name="notification_channel_id">smart_silence_channel</string>
+    <string name="notification_channel_name">SmartSilence התראות</string>
+    <string name="notification_channel_desc">הודעות מערכת מ־SmartSilence</string>
+
+    <!-- Notification Messages -->
+    <string name="notification_title">SmartSilence</string>
+    <string name="notification_silence">הטלפון הועבר למצב שקט</string>
+    <string name="notification_normal">הטלפון חזר למצב רגיל</string>
+    <string name="notification_vibrate">הטלפון במצב רטט</string>
 </resources>

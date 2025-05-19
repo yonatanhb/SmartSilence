@@ -65,8 +65,11 @@ public class TimeSchedulerService extends Service {
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {
             audioManager.setRingerMode(mode);
+            // שלח התראה על שינוי מצב הצלצול
+            com.yet.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
         }
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
