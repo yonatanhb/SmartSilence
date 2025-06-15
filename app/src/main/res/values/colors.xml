@@ -22,4 +22,39 @@
     <!-- צבע רקע לימים פעילים -->
     <color name="accent_color_light">#FFEBEE</color>
     <color name="white">#FFFFFF</color>
+
+
+    <color name="primary_dark">#3700B3</color>
+
+    <color name="accent_dark">#018786</color>
+
+    <!-- Background Colors -->
+    <color name="surface_color">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="hint_text">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
+
+    <!-- Map Colors -->
+    <color name="map_marker_color">#2196F3</color>
+    <color name="map_circle_stroke">#4285F4</color>
+    <color name="map_circle_fill">#204285F4</color>
+
+    <!-- Button Colors -->
+    <color name="button_primary">#6200EE</color>
+    <color name="button_secondary">#E0E0E0</color>
+    <color name="button_text_primary">#FFFFFF</color>
+    <color name="button_text_secondary">#757575</color>
+
+    <!-- Radio Button Colors -->
+    <color name="radio_selected">#E8F5E8</color>
+    <color name="radio_unselected">#F5F5F5</color>
+    <color name="radio_border_selected">#4CAF50</color>
+    <color name="radio_border_unselected">#E0E0E0</color>
 </resources>

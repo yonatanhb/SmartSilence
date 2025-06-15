@@ -43,24 +43,26 @@ public class TimeSchedulerService extends Service {
     private void checkAndApplyRules() {
         boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
                 .getBoolean("app_active", true);
-        if (!isAppActive) {
-            Log.d("SmartSilence", "App setting disabled, no change");
-            return;
-        }
+        if (!isAppActive) return;
 
+        boolean timeRuleActive = false;
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
-            if (TimeUtils.isRuleActiveNow(rule)) {
-                setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                Log.d("SmartSilence", "rule active: turn to silence mode");
-                return;
+            if (com.yet.smartsilence.utils.TimeUtils.isRuleActiveNow(rule)) {
+                timeRuleActive = true;
+                break;
             }
         }
 
-        // אם אף חוק לא תקף עכשיו – חזור למצב רגיל
-        setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-        Log.d("SmartSilence", "There is no active rule: no change");
+        getSharedPreferences("smartsilence_state", MODE_PRIVATE)
+                .edit()
+                .putBoolean("time_rule_active", timeRuleActive)
+                .apply();
+
+        com.yet.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
+
+
 
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {

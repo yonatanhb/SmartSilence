@@ -48,10 +48,19 @@
             android:name=".activities.RulesActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.AddEditRuleActivity"
+            android:exported="false" />
+
+
         <!-- שירות לזמנים (אם תרצה גם שירות למיקום, תוסיף דומה) -->
         <service
             android:name=".services.TimeSchedulerService"
             android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}"/>
 
         <service
             android:name=".services.LocationMonitorService"

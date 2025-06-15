@@ -41,15 +41,22 @@ public class RulesActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rulesRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<RuleModel> rules = dbHelper.getAllRules();
-        adapter = new RulesAdapter(rules);
-        recyclerView.setAdapter(adapter);
+        new Thread(() -> {
+            List<RuleModel> rules = dbHelper.getAllRules();
+
+            // עדכן את ה־UI מה־main thread
+            runOnUiThread(() -> {
+                adapter = new RulesAdapter(rules);
+                recyclerView.setAdapter(adapter);
+            });
+        }).start();
 
         FloatingActionButton addBtn = findViewById(R.id.addRuleButton);
-//        addBtn.setOnClickListener(v -> {
-//            startActivity(new Intent(RulesActivity.this, AddEditRuleActivity.class));
-//        });
+        addBtn.setOnClickListener(v -> {
+            startActivity(new Intent(RulesActivity.this, AddEditRuleActivity.class));
+        });
     }
+
 
     class RulesAdapter extends RecyclerView.Adapter<RulesAdapter.RuleViewHolder> {
 
@@ -137,6 +144,14 @@ public class RulesActivity extends AppCompatActivity {
                         .setNegativeButton("ביטול", null)
                         .show();
             });
+
+            holder.editBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(holder.itemView.getContext(), AddEditRuleActivity.class);
+                intent.putExtra("ruleId", rule.getId());
+                holder.itemView.getContext().startActivity(intent);
+            });
+
+
 
         }
 

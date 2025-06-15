@@ -79,8 +79,8 @@ public class LocationMonitorService extends Service {
 
     private void requestLocationUpdates() {
         LocationRequest locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY, 600_000)
-                .setMinUpdateIntervalMillis(300_000)
+                Priority.PRIORITY_BALANCED_POWER_ACCURACY, 10_000)
+                .setMinUpdateIntervalMillis(5_000)
                 .build();
 
         try {
@@ -99,23 +99,16 @@ public class LocationMonitorService extends Service {
     private void checkAndApplyLocationRules(Location location) {
         boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
                 .getBoolean("app_active", true);
-        if (!isAppActive) {
-            Log.d("SmartSilence", "App setting disabled, no change (location)");
-            return;
-        }
+        if (!isAppActive) return;
 
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (!nm.isNotificationPolicyAccessGranted()) {
-            Log.w("SmartSilence", "Notification policy access not granted. Cannot change ringer mode (location).");
-            return;
-        }
+        if (!nm.isNotificationPolicyAccessGranted()) return;
 
+        boolean locationRuleActive = false;
         List<RuleModel> locationRules = dbHelper.getAllRules();
         for (RuleModel rule : locationRules) {
-            Log.d("SmartSilence", "Rule: " + rule.getType() + ", active=" + rule.isActive() + ", loc=" + rule.getLatitude() + "/" + rule.getLongitude() + ", radius=" + rule.getRadius());
             if ("location".equals(rule.getType()) && rule.isActive()) {
                 float[] result = new float[1];
-                Log.d("SmartSilence", "Location check: current=" + location.getLatitude() + "," + location.getLongitude() + " | rule=" + rule.getLatitude() + "," + rule.getLongitude() + " | radius=" + rule.getRadius());
                 Location.distanceBetween(
                         location.getLatitude(), location.getLongitude(),
                         rule.getLatitude(), rule.getLongitude(),
@@ -123,16 +116,21 @@ public class LocationMonitorService extends Service {
                 );
                 float distance = result[0];
                 if (distance <= rule.getRadius()) {
-                    setRingerMode(AudioManager.RINGER_MODE_SILENT, "נכנסת לאזור שקט: " + rule.getLocationName());
-                    Log.d("SmartSilence", "Entered silent zone: " + rule.getLocationName());
-                    return;
+                    locationRuleActive = true;
+                    break;
                 }
             }
         }
-        // לא נכנס לאף אזור: מצב רגיל
-        setRingerMode(AudioManager.RINGER_MODE_NORMAL, "לא נמצאים באף אזור שקט");
-        Log.d("SmartSilence", "No active location rule, ringer mode NORMAL");
+
+        getSharedPreferences("smartsilence_state", MODE_PRIVATE)
+                .edit()
+                .putBoolean("location_rule_active", locationRuleActive)
+                .apply();
+
+        com.yet.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
+
+
 
     private void setRingerMode(int mode, String reason) {
         if (audioManager.getRingerMode() != mode) {

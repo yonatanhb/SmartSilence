@@ -42,6 +42,8 @@ public class HomeActivity extends AppCompatActivity {
     private boolean ringerModeReceiverRegistered = false;
     private boolean locationPermissionRequested = false;
 
+    private int nextRuleId = -1;
+
     // ל־Android 10 ומעלה – ACCESS_BACKGROUND_LOCATION נדרש בנפרד
     private final boolean needBackgroundLocation =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
@@ -84,15 +86,15 @@ public class HomeActivity extends AppCompatActivity {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         dbHelper     = new RuleDatabaseHelper(this);
         dbHelper.deleteAllRules();
-        //dbHelper.insertTestTimeRule();
-//        dbHelper.insertLocationRule(
-//                "בית ספר",
-//                "תיכון רוטברג",
-//                31.987654,        // קו רוחב
-//                34.765432,        // קו אורך
-//                100,              // רדיוס במטרים
-//                true              // פעיל
-//        );
+        dbHelper.insertTestTimeRule();
+        dbHelper.insertLocationRule(
+                "בית ספר",
+                "תיכון רוטברג",
+                31.987654,        // קו רוחב
+                34.765432,        // קו אורך
+                100,              // רדיוס במטרים
+                true              // פעיל
+        );
 
         setupButtonListeners();
 
@@ -109,8 +111,11 @@ public class HomeActivity extends AppCompatActivity {
 
         MaterialButton editRuleButton = findViewById(R.id.editRuleButton);
         editRuleButton.setOnClickListener(v -> {
-            // Intent intent = new Intent(this, EditRuleActivity.class);
-            // startActivity(intent);
+            if (nextRuleId != -1) {
+                Intent intent = new Intent(this, AddEditRuleActivity.class);
+                intent.putExtra("ruleId", nextRuleId);
+                startActivity(intent);
+            }
         });
 
         FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
@@ -119,6 +124,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
+
 
     @Override
     protected void onResume() {
@@ -264,10 +270,16 @@ public class HomeActivity extends AppCompatActivity {
             weekDaysView.setSelectable(false);
             weekDaysView.setDaysMask(nextRule.getDaysMask());
 
+            // שמור את מזהה החוק הקרוב
+            nextRuleId = nextRule.getId();
+
         } else {
             nextRuleTextView.setText("אין כלל זמן מתוזמן בקרוב");
             editRuleButton.setVisibility(View.GONE);
             weekDaysView.setVisibility(View.GONE);
+
+            nextRuleId = -1;
         }
     }
+
 }

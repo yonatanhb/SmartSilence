@@ -1,40 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- בסיס הנושא בגירסת Material Design -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+
+    <!-- Base Application Theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent_color</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="colorSurface">@color/surface_color</item>
+        <item name="colorOnSurface">@color/primary_text</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <!-- Typography -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+
+        <!-- RTL Support -->
+        <item name="android:layoutDirection">rtl</item>
+
+        <!-- Button and FAB Styles -->
+        <item name="materialButtonStyle">@style/Button.Custom.Primary</item>
+        <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+    </style>
+
+    <!-- Light Theme Variant -->
+    <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryDark">@color/primary_dark_color</item>
         <item name="colorAccent">@color/accent_color</item>
         <item name="android:windowBackground">@color/background_color</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:layoutDirection">rtl</item>
-
-        <!-- טיפוגרפיה -->
+        <item name="colorSurface">@color/surface_color</item>
+        <item name="colorOnSurface">@color/primary_text</item>
+        <item name="colorOnPrimary">@android:color/white</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
-
-        <!-- עיצוב כפתורים -->
-        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonStyle">@style/Button.Custom.Primary</item>
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
     </style>
 
-    <!-- סגנון כפתורים -->
+    <!-- Activity Theme -->
+    <style name="AppTheme.AddEditRule" parent="AppTheme">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/primary_color</item>
+    </style>
+
+    <!-- Card Styles -->
+    <style name="CardView.Custom" parent="CardView">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <!-- Alternative Card Style -->
+    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="contentPadding">16dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+    </style>
+
+    <!-- Text Styles -->
+    <style name="TextAppearance.Custom.Headline" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Custom.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+
+    <style name="TextAppearance.Custom.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="Button.Custom.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/button_text_primary</item>
+        <item name="backgroundTint">@color/button_primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="elevation">6dp</item>
+    </style>
+
+    <style name="Button.Custom.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/primary_color</item>
+        <item name="strokeColor">@color/primary_color</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="rippleColor">@color/primary_color</item>
+    </style>
+
+    <!-- Alternative Button Style -->
     <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:textAllCaps">false</item>
         <item name="cornerRadius">8dp</item>
     </style>
 
-    <!-- סגנון כפתור צף -->
+    <!-- Floating Action Button Style -->
     <style name="Widget.App.FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="backgroundTint">@color/accent_color</item>
         <item name="tint">@android:color/white</item>
         <item name="borderWidth">0dp</item>
     </style>
 
-    <!-- סגנון כרטיס -->
-    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">4dp</item>
-        <item name="contentPadding">16dp</item>
+    <!-- TextInputLayout Styles -->
+    <style name="TextInputLayout.Custom" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/accent_color</item>
+        <item name="hintTextColor">@color/accent_color</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
     </style>
+
+    <!-- RadioButton Styles -->
+    <style name="RadioButton.Custom" parent="Widget.MaterialComponents.CompoundButton.RadioButton">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="buttonTint">@color/accent_color</item>
+        <item name="android:background">@drawable/radio_button_background</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <!-- Map Container Style -->
+    <style name="MapContainer">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+    </style>
+
 </resources>

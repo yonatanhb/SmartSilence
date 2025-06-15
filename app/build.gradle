@@ -6,6 +6,13 @@ android {
     namespace 'com.yet.smartsilence'
     compileSdk 35
 
+    // טוענים את ה־local.properties (כאן, בתוך android!)
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.newDataInputStream())
+    }
+
     defaultConfig {
         applicationId "com.yet.smartsilence"
         minSdk 26
@@ -14,6 +21,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // מחליף אוטומטית את ה־API KEY במניפסט
+        manifestPlaceholders = [GOOGLE_MAPS_API_KEY: localProperties['MY_API_KEY']]
     }
 
     buildTypes {
@@ -29,12 +39,12 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

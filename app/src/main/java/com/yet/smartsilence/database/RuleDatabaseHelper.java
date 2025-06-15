@@ -108,6 +108,61 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_RULES, null, values);
     }
 
+    public void insertManualTimeRule(RuleModel rule) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_TYPE, "time");
+        values.put(COLUMN_RULE_NAME, rule.getRuleName());
+        values.put(COLUMN_ACTIVE, rule.isActive() ? 1 : 0);
+        values.put(COLUMN_TIME_START, rule.getTimeStart());
+        values.put(COLUMN_TIME_END, rule.getTimeEnd());
+        values.put(COLUMN_DAYS_MASK, rule.getDaysMask());
+
+        // לא רלוונטי לחוקי זמן – נכניס null
+        values.putNull(COLUMN_LOCATION_NAME);
+        values.putNull(COLUMN_LATITUDE);
+        values.putNull(COLUMN_LONGITUDE);
+        values.putNull(COLUMN_RADIUS);
+
+        db.insert(TABLE_RULES, null, values);
+    }
+
+    public boolean updateRuleById(RuleModel rule) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_RULE_NAME, rule.getRuleName());
+        values.put(COLUMN_TYPE, rule.getType());
+        values.put(COLUMN_ACTIVE, rule.isActive() ? 1 : 0);
+
+        if ("time".equals(rule.getType())) {
+            values.put(COLUMN_TIME_START, rule.getTimeStart());
+            values.put(COLUMN_TIME_END, rule.getTimeEnd());
+            values.put(COLUMN_DAYS_MASK, rule.getDaysMask());
+
+            // ערכים ריקים עבור שדות מיקום
+            values.putNull(COLUMN_LOCATION_NAME);
+            values.putNull(COLUMN_LATITUDE);
+            values.putNull(COLUMN_LONGITUDE);
+            values.putNull(COLUMN_RADIUS);
+        } else {
+            values.put(COLUMN_LOCATION_NAME, rule.getLocationName());
+            values.put(COLUMN_LATITUDE, rule.getLatitude());
+            values.put(COLUMN_LONGITUDE, rule.getLongitude());
+            values.put(COLUMN_RADIUS, rule.getRadius());
+
+            // ערכים ריקים עבור שדות זמן
+            values.putNull(COLUMN_TIME_START);
+            values.putNull(COLUMN_TIME_END);
+            values.put(COLUMN_DAYS_MASK, 0);
+        }
+
+        int rows = db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(rule.getId())});
+        return rows > 0;
+    }
+
+
     public void insertLocationRule(String ruleName, String locationName, double latitude, double longitude, int radius, boolean active) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
