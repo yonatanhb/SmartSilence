@@ -85,16 +85,16 @@ public class HomeActivity extends AppCompatActivity {
         // אתחול שירותים ובסיס נתונים
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         dbHelper     = new RuleDatabaseHelper(this);
-        dbHelper.deleteAllRules();
-        dbHelper.insertTestTimeRule();
-        dbHelper.insertLocationRule(
-                "בית ספר",
-                "תיכון רוטברג",
-                31.987654,        // קו רוחב
-                34.765432,        // קו אורך
-                100,              // רדיוס במטרים
-                true              // פעיל
-        );
+//        dbHelper.deleteAllRules();
+//        dbHelper.insertTestTimeRule();
+//        dbHelper.insertLocationRule(
+//                "בית ספר",
+//                "תיכון רוטברג",
+//                31.987654,        // קו רוחב
+//                34.765432,        // קו אורך
+//                100,              // רדיוס במטרים
+//                true              // פעיל
+//        );
 
         setupButtonListeners();
 
