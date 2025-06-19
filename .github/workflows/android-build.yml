@@ -30,6 +30,10 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
+    # יוצר קובץ local.properties עם מפתח ה-API מה-Secrets
+    - name: Create local.properties
+      run: echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > local.properties
+      
     # 3. הפיכת קובץ ה-gradlew לניתן להרצה (חשוב בסביבות לינוקס)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
