@@ -1,4 +1,4 @@
-package com.yet.smartsilence.views;
+package com.yonatanh_tald_evem.smartsilence.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.yet.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class WeekDaysView extends LinearLayout {
         for (int i = 0; i < 7; i++) {
             TextView tv = dayViews.get(i);
             if ((daysMask & (1<<i)) != 0) {
-                tv.setBackground(ContextCompat.getDrawable(getContext(), com.yet.smartsilence.R.drawable.circle_day_background));
+                tv.setBackground(ContextCompat.getDrawable(getContext(), com.yonatanh_tald_evem.smartsilence.R.drawable.circle_day_background));
                 tv.setTextColor(ContextCompat.getColor(getContext(), R.color.text_primary));
             } else {
                 tv.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.circle_day_background_inactive));

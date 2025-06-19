@@ -1,4 +1,4 @@
-package com.yet.smartsilence.utils;
+package com.yonatanh_tald_evem.smartsilence.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,8 +11,8 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import com.yet.smartsilence.R;
-import com.yet.smartsilence.activities.HomeActivity;
+import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.activities.HomeActivity;
 
 public class NotificationHelper {
 

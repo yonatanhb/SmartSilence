@@ -1,4 +1,4 @@
-package com.yet.smartsilence.services;
+package com.yonatanh_tald_evem.smartsilence.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -20,10 +20,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.yet.smartsilence.R;
-import com.yet.smartsilence.database.RuleDatabaseHelper;
-import com.yet.smartsilence.database.models.RuleModel;
-import com.yet.smartsilence.utils.NotificationHelper;
+import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_evem.smartsilence.utils.NotificationHelper;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class LocationMonitorService extends Service {
         String channelId = getString(R.string.notification_channel_id);
         createForegroundNotificationChannel(channelId);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                .setContentTitle(getString(com.yet.smartsilence.R.string.app_name))
+                .setContentTitle(getString(R.string.app_name))
                 .setContentText("ניטור מיקום פועל")
                 .setSmallIcon(R.drawable.ic_notification_icon)
                 .setPriority(NotificationCompat.PRIORITY_LOW);
@@ -94,9 +94,12 @@ public class LocationMonitorService extends Service {
         }
     }
 
-
-
+    /**
+     * עדכון location_rule_active גם אם אין אף חוק תקף!
+     * קריאה ל-RuleStateManager תמיד.
+     */
     private void checkAndApplyLocationRules(Location location) {
+        Log.d("SmartSilence", "Received location: Lat=" + location.getLatitude() + ", Lon=" + location.getLongitude());
         boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
                 .getBoolean("app_active", true);
         if (!isAppActive) return;
@@ -105,47 +108,36 @@ public class LocationMonitorService extends Service {
         if (!nm.isNotificationPolicyAccessGranted()) return;
 
         boolean locationRuleActive = false;
-        List<RuleModel> locationRules = dbHelper.getAllRules();
+        RuleModel activeRule = null;
+        List<RuleModel> locationRules = dbHelper.getActiveLocationRules();
         for (RuleModel rule : locationRules) {
-            if ("location".equals(rule.getType()) && rule.isActive()) {
-                float[] result = new float[1];
-                Location.distanceBetween(
-                        location.getLatitude(), location.getLongitude(),
-                        rule.getLatitude(), rule.getLongitude(),
-                        result
-                );
-                float distance = result[0];
-                if (distance <= rule.getRadius()) {
-                    locationRuleActive = true;
-                    break;
-                }
+
+            float[] result = new float[1];
+            Location.distanceBetween(
+                    location.getLatitude(), location.getLongitude(),
+                    rule.getLatitude(), rule.getLongitude(),
+                    result
+            );
+            float distance = result[0];
+            if (distance <= rule.getRadius()) {
+                locationRuleActive = true;
+                activeRule = rule;
+                break;
             }
         }
 
+        // לוגים למעקב מלא!
+        Log.d("SmartSilence", "checkAndApplyLocationRules: locationRuleActive=" + locationRuleActive +
+                (activeRule != null ? ", rule=" + activeRule.getLocationName() : ""));
+
+        // עדכון תמידי (גם כשיוצאים מאזורים)
         getSharedPreferences("smartsilence_state", MODE_PRIVATE)
                 .edit()
                 .putBoolean("location_rule_active", locationRuleActive)
                 .apply();
 
-        com.yet.smartsilence.utils.RuleStateManager.updateRingerMode(this);
-    }
-
-
-
-    private void setRingerMode(int mode, String reason) {
-        if (audioManager.getRingerMode() != mode) {
-            audioManager.setRingerMode(mode);
-
-            // בדיקת האם לשלוח התראות
-            boolean notificationsEnabled = getSharedPreferences("settings_prefs", MODE_PRIVATE)
-                    .getBoolean("notifications_enabled", true);
-            if (notificationsEnabled) {
-                NotificationHelper.showRingerModeChanged(this, mode);
-                Log.d("SmartSilence", "Notification sent (location-based, " + reason + ")");
-            } else {
-                Log.d("SmartSilence", "Notifications are disabled in settings, not sending.");
-            }
-        }
+        // קריאה תמידית — כך שיתבצע חזרה למצב רגיל ברגע שאין חוקים פעילים
+        com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 
     @Override

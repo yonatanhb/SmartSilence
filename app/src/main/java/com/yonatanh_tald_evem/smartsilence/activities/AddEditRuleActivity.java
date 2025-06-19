@@ -1,10 +1,9 @@
-package com.yet.smartsilence.activities;
+package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.TimePickerDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,10 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 
-import com.yet.smartsilence.R;
-import com.yet.smartsilence.database.RuleDatabaseHelper;
-import com.yet.smartsilence.database.models.RuleModel;
-import com.yet.smartsilence.views.WeekDaysView;
+import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
 
 import java.util.Calendar;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -185,31 +184,45 @@ public class AddEditRuleActivity extends AppCompatActivity {
     }
 
     private void updateLocationName(LatLng latLng) {
-        // Update location name using reverse geocoding
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String placeName = "";
+        new Thread(() -> {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            String placeName = "מיקום נבחר";
+            try {
+                List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
 
-                if (address.getFeatureName() != null) {
-                    placeName = address.getFeatureName();
-                } else if (address.getThoroughfare() != null) {
-                    placeName = address.getThoroughfare();
-                } else if (address.getLocality() != null) {
-                    placeName = address.getLocality();
-                } else {
-                    placeName = "מיקום נבחר";
+                    // בנה כתובת מלאה
+                    StringBuilder sb = new StringBuilder();
+                    if (address.getThoroughfare() != null) {
+                        sb.append(address.getThoroughfare()); // רחוב
+                    }
+                    if (address.getSubThoroughfare() != null) {
+                        if (sb.length() > 0) sb.append(" ");
+                        sb.append(address.getSubThoroughfare()); // מספר בית
+                    }
+                    if (address.getLocality() != null) {
+                        if (sb.length() > 0) sb.append(", ");
+                        sb.append(address.getLocality()); // עיר
+                    }
+                    if (address.getCountryName() != null) {
+                        if (sb.length() > 0) sb.append(", ");
+                        sb.append(address.getCountryName()); // מדינה
+                    }
+                    if (sb.length() > 0) {
+                        placeName = sb.toString();
+                    }
                 }
-
-                inputLocationName.setText(placeName);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            inputLocationName.setText("מיקום נבחר");
-        }
+
+            final String finalPlaceName = placeName;
+            runOnUiThread(() -> inputLocationName.setText(finalPlaceName));
+        }).start();
     }
+
+
 
     private void bindViews() {
         inputRuleName = findViewById(R.id.inputRuleName);
@@ -323,36 +336,40 @@ public class AddEditRuleActivity extends AppCompatActivity {
     }
 
     private void loadRule(int id) {
-        for (RuleModel rule : dbHelper.getAllRules()) {
-            if (rule.getId() == id) {
-                inputRuleName.setText(rule.getRuleName());
+        RuleModel rule = dbHelper.getRuleById(id);
 
-                if ("time".equals(rule.getType())) {
-                    radioTime.setChecked(true);
-                    showTypeFields("time");
+        if (rule == null) {
+            // מקרה קצה: הגענו לערוך חוק שלא קיים (אולי נמחק בינתיים)
+            Toast.makeText(this, "החוק לא נמצא", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-                    timeStart = rule.getTimeStart();
-                    timeEnd = rule.getTimeEnd();
-                    btnTimeStart.setText(timeStart);
-                    btnTimeEnd.setText(timeEnd);
-                    weekDaysView.setDaysMask(rule.getDaysMask());
+        inputRuleName.setText(rule.getRuleName());
 
-                } else {
-                    radioLocation.setChecked(true);
-                    showTypeFields("location");
+        if ("time".equals(rule.getType())) {
+            radioTime.setChecked(true);
+            showTypeFields("time");
 
-                    inputLocationName.setText(rule.getLocationName());
-                    inputRadius.setText(String.valueOf(rule.getRadius()));
+            timeStart = rule.getTimeStart();
+            timeEnd = rule.getTimeEnd();
+            btnTimeStart.setText(timeStart);
+            btnTimeEnd.setText(timeEnd);
+            weekDaysView.setDaysMask(rule.getDaysMask());
 
-                    // Show location on map
-                    selectedLatLng = new LatLng(rule.getLatitude(), rule.getLongitude());
-                    if (map != null && selectedLatLng != null) {
-                        updateMapMarkerAndCircle();
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng,
-                                getZoomLevel(rule.getRadius())));
-                    }
-                }
-                break;
+        } else if ("location".equals(rule.getType())) { // עדיף להשתמש ב-else if לבהירות
+            radioLocation.setChecked(true);
+            showTypeFields("location");
+
+            inputLocationName.setText(rule.getLocationName());
+            inputRadius.setText(String.valueOf(rule.getRadius()));
+
+            // Show location on map
+            selectedLatLng = new LatLng(rule.getLatitude(), rule.getLongitude());
+            if (map != null && selectedLatLng != null) {
+                updateMapMarkerAndCircle();
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng,
+                        getZoomLevel(rule.getRadius())));
             }
         }
     }

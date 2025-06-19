@@ -96,7 +96,7 @@
                 android:fontFamily="sans-serif" />
 
             <!--  WeekDaysView -->
-            <com.yet.smartsilence.views.WeekDaysView
+            <com.yonatanh_tald_evem.smartsilence.views.WeekDaysView
                 android:id="@+id/weekDaysView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

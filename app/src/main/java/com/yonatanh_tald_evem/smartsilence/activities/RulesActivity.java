@@ -1,6 +1,5 @@
-package com.yet.smartsilence.activities;
+package com.yonatanh_tald_evem.smartsilence.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,9 +19,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.yet.smartsilence.R;
-import com.yet.smartsilence.database.RuleDatabaseHelper;
-import com.yet.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 
 import java.util.List;
 

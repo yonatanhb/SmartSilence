@@ -1,4 +1,4 @@
-package com.yet.smartsilence.utils;
+package com.yonatanh_tald_evem.smartsilence.utils;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -18,10 +18,10 @@ public class RuleStateManager {
         int wantedMode;
         if (locationRuleActive) {
             wantedMode = AudioManager.RINGER_MODE_SILENT;
-            Log.d("SmartSilence", "location rule wins: SILENT");
+            Log.d("SmartSilence", "location rule: SILENT");
         } else if (timeRuleActive) {
             wantedMode = AudioManager.RINGER_MODE_SILENT;
-            Log.d("SmartSilence", "time rule active (no location): SILENT");
+            Log.d("SmartSilence", "time rule active: SILENT");
         } else {
             wantedMode = AudioManager.RINGER_MODE_NORMAL;
             Log.d("SmartSilence", "no active rules: NORMAL");

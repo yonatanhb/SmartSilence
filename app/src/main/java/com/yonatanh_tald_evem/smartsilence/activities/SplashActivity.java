@@ -1,4 +1,4 @@
-package com.yet.smartsilence.activities;
+package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.yet.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.R;
 
 public class SplashActivity extends AppCompatActivity {
 

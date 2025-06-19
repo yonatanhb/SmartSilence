@@ -1,4 +1,4 @@
-package com.yet.smartsilence;
+package com.yonatanh_tald_evem.smartsilence;
 
 import android.content.Context;
 

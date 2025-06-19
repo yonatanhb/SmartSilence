@@ -1,4 +1,4 @@
-package com.yet.smartsilence.activities;
+package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -22,13 +22,13 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.yet.smartsilence.R;
-import com.yet.smartsilence.database.RuleDatabaseHelper;
-import com.yet.smartsilence.database.models.RuleModel;
-import com.yet.smartsilence.services.TimeSchedulerService;
-import com.yet.smartsilence.services.LocationMonitorService;
-import com.yet.smartsilence.utils.TimeUtils;
-import com.yet.smartsilence.views.WeekDaysView;
+import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService;
+import com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService;
+import com.yonatanh_tald_evem.smartsilence.utils.TimeUtils;
+import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
 
 import java.util.List;
 

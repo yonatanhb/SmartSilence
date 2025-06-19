@@ -1,4 +1,4 @@
-package com.yet.smartsilence.database;
+package com.yonatanh_tald_evem.smartsilence.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.yet.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -93,6 +93,38 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         return rules;
     }
 
+    /** מחזיר את כל חוקי המיקום הפעילים */
+    public List<RuleModel> getActiveLocationRules() {
+        List<RuleModel> rules = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        // שאילתה ששולפת רק חוקי מיקום פעילים
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null,
+                COLUMN_TYPE + "=? AND " + COLUMN_ACTIVE + "=?",
+                new String[]{"location", "1"},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                RuleModel rule = new RuleModel();
+                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+                rules.add(rule);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return rules;
+    }
+
     /** מוסיף כלל לדוגמה (רק היום, עוד דקה עד 10 דקות) */
     public void insertTestTimeRule() {
         SQLiteDatabase db = getWritableDatabase();
@@ -126,6 +158,39 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         values.putNull(COLUMN_RADIUS);
 
         db.insert(TABLE_RULES, null, values);
+    }
+
+    /** מחזיר חוק ספציפי לפי ID */
+    public RuleModel getRuleById(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        RuleModel rule = null;
+
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null, // כל העמודות
+                COLUMN_ID + "=?", // תנאי WHERE
+                new String[]{String.valueOf(id)}, // ערך התנאי
+                null, null, null, "1" // LIMIT 1
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            rule = new RuleModel(); // רק אם מצאנו משהו, ניצור אובייקט
+            rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+            rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+            rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+            rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+            rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
+            rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
+            rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
+            rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+            rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+            rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+            rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+            cursor.close();
+        }
+
+        db.close();
+        return rule;
     }
 
     public boolean updateRuleById(RuleModel rule) {

@@ -1,4 +1,4 @@
-package com.yet.smartsilence.activities;
+package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.util.Log; // <-- הוספת ייבוא Log
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import androidx.appcompat.app.AppCompatActivity;
-import com.yet.smartsilence.R;
+import com.yonatanh_tald_evem.smartsilence.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

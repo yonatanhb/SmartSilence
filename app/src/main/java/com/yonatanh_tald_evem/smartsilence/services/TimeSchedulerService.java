@@ -1,4 +1,4 @@
-package com.yet.smartsilence.services;
+package com.yonatanh_tald_evem.smartsilence.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
-import com.yet.smartsilence.database.RuleDatabaseHelper;
-import com.yet.smartsilence.database.models.RuleModel;
-import com.yet.smartsilence.utils.TimeUtils;
+import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class TimeSchedulerService extends Service {
         boolean timeRuleActive = false;
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
-            if (com.yet.smartsilence.utils.TimeUtils.isRuleActiveNow(rule)) {
+            if (com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule)) {
                 timeRuleActive = true;
                 break;
             }
@@ -59,7 +57,7 @@ public class TimeSchedulerService extends Service {
                 .putBoolean("time_rule_active", timeRuleActive)
                 .apply();
 
-        com.yet.smartsilence.utils.RuleStateManager.updateRingerMode(this);
+        com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 
 
@@ -68,7 +66,7 @@ public class TimeSchedulerService extends Service {
         if (audioManager.getRingerMode() != mode) {
             audioManager.setRingerMode(mode);
             // שלח התראה על שינוי מצב הצלצול
-            com.yet.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
+            com.yonatanh_tald_evem.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
         }
     }
 
