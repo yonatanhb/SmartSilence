@@ -1,28 +1,19 @@
-# שם ה-Workflow שיופיע בטאב ה-Actions ב-GitHub
 name: Android CI Build
 
-# מתי ה-Workflow ירוץ
 on:
-  # ירוץ בכל פעם שיש push לענף ה-main
   push:
     branches: [ "main" ]
-  # ירוץ בכל פעם שפותחים/מעדכנים Pull Request לענף ה-main
   pull_request:
     branches: [ "main" ]
 
-# המשימות (Jobs) שירוצו
 jobs:
   build:
-    # על איזו מערכת הפעלה ה-Job ירוץ (שרתים של GitHub)
     runs-on: ubuntu-latest
 
-    # השלבים (Steps) בתוך ה-Job
     steps:
-    # 1. הורדת הקוד מה-Repository
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. הגדרת סביבת Java (JDK) - חובה עבור Gradle
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -30,23 +21,20 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    # יוצר קובץ local.properties עם מפתח ה-API מה-Secrets
     - name: Create local.properties
-      run: echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > local.properties
-      
-    # 3. הפיכת קובץ ה-gradlew לניתן להרצה (חשוב בסביבות לינוקס)
+      run: echo "MY_API_KEY=${{ secrets.MY_API_KEY }}" > local.properties
+
+    - name: Verify local.properties file (for debugging)
+      run: cat local.properties
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # 4. הרצת הפקודה לבניית ה-APK (בגרסת Debug)
-    # הפקודה הזו תבצע build ותיכשל אם יש שגיאות קומפילציה.
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
-
-    # 5. (אופציונלי אך מומלץ) העלאת ה-APK שנוצר כ-Artifact
-    # זה מאפשר לך להוריד את קובץ ה-APK ישירות מה-Actions tab ב-GitHub
+      run: ./gradlew assembleDebug --stacktrace
+      
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug-apk # שם ה-Artifact
+        name: app-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
