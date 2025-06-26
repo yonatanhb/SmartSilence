@@ -10,14 +10,13 @@ import com.yonatanh_tald_evem.smartsilence.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long SPLASH_DURATION_MS = 2000; // 2 שניות
+    private static final long SPLASH_DURATION_MS = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // מעבר אוטומטי ל-HomeActivity אחרי 2 שניות
         new Handler().postDelayed(() -> {
             startActivity(new Intent(this, HomeActivity.class));
             finish();

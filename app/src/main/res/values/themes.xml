@@ -1,13 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.SmartSilence" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Theme.SmartSilence" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
-
-    <style name="Theme.SmartSilence" parent="Base.Theme.SmartSilence" />
-    <style name="Theme.SmartSilence.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-    </style>
-
 </resources>

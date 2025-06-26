@@ -25,7 +25,6 @@
         <!-- מסך פתיחה: SplashActivity כ-Launcher -->
         <activity
             android:name=".activities.SplashActivity"
-            android:theme="@style/Theme.SmartSilence.Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
