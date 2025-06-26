@@ -1,3 +1,4 @@
+
 package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.animation.Animator;
@@ -17,6 +18,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.widget.TimePicker;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -50,7 +52,8 @@ public class AddEditRuleActivity extends AppCompatActivity {
     private RadioButton radioTime, radioLocation;
     private WeekDaysView weekDaysView;
     private Button btnTimeStart, btnTimeEnd, btnSave;
-    private EditText inputLocationName, inputRadius;
+    private TextView labelLocationName; // שונה מ-EditText ל-TextView
+    private EditText inputRadius;
     private CardView timeFieldsCard, locationFieldsCard;
 
     private RuleDatabaseHelper dbHelper;
@@ -69,6 +72,21 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         dbHelper = new RuleDatabaseHelper(this);
         bindViews();
+
+        TextView textTitle = findViewById(R.id.textTitle);
+
+        editingRuleId = getIntent().getIntExtra("ruleId", -1);
+        isEditing = editingRuleId != -1;
+
+        if (isEditing) {
+            textTitle.setText("עריכת חוק");
+            loadRule(editingRuleId);
+        } else {
+            textTitle.setText("יצירת חוק חדש");
+            showTypeFields("time");
+            radioTime.setChecked(true);
+        }
+
         setupMap();
         setupListeners();
 
@@ -218,11 +236,9 @@ public class AddEditRuleActivity extends AppCompatActivity {
             }
 
             final String finalPlaceName = placeName;
-            runOnUiThread(() -> inputLocationName.setText(finalPlaceName));
+            runOnUiThread(() -> labelLocationName.setText(finalPlaceName));
         }).start();
     }
-
-
 
     private void bindViews() {
         inputRuleName = findViewById(R.id.inputRuleName);
@@ -233,7 +249,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         btnTimeStart = findViewById(R.id.btnTimeStart);
         btnTimeEnd = findViewById(R.id.btnTimeEnd);
         btnSave = findViewById(R.id.btnSaveRule);
-        inputLocationName = findViewById(R.id.inputLocationName);
+        labelLocationName = findViewById(R.id.labelLocationName); // שונה ל-TextView
         inputRadius = findViewById(R.id.inputRadius);
         timeFieldsCard = findViewById(R.id.timeFieldsCard);
         locationFieldsCard = findViewById(R.id.locationFieldsCard);
@@ -276,6 +292,10 @@ public class AddEditRuleActivity extends AppCompatActivity {
         } else {
             animateCardVisibility(timeFieldsCard, false);
             animateCardVisibility(locationFieldsCard, true);
+            // איפוס הלייבל כשעוברים לחוק מיקום
+            if (selectedLatLng == null) {
+                labelLocationName.setText("בחר מיקום מהמפה");
+            }
         }
     }
 
@@ -361,7 +381,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
             radioLocation.setChecked(true);
             showTypeFields("location");
 
-            inputLocationName.setText(rule.getLocationName());
+            labelLocationName.setText(rule.getLocationName());
             inputRadius.setText(String.valueOf(rule.getRadius()));
 
             // Show location on map
@@ -403,7 +423,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
                 return;
             }
             try {
-                rule.setLocationName(inputLocationName.getText().toString().trim());
+                rule.setLocationName(labelLocationName.getText().toString().trim());
                 rule.setLatitude(selectedLatLng.latitude);
                 rule.setLongitude(selectedLatLng.longitude);
                 rule.setRadius(Integer.parseInt(inputRadius.getText().toString()));

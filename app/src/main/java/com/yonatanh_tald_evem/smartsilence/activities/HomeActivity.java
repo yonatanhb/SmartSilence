@@ -7,21 +7,25 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.yonatanh_tald_evem.smartsilence.R;
 import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
 import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
@@ -77,6 +81,11 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // הגדרת Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primary_color));
+
         // אתחול רכיבי ממשק
         ringerStatusTextView = findViewById(R.id.ringerStatusTextView);
         nextRuleTextView     = findViewById(R.id.nextRuleTextView);
@@ -102,6 +111,31 @@ public class HomeActivity extends AppCompatActivity {
         displayNextScheduledRule();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.action_about) {
+            showAboutDialog();
+            return true;
+        } else if (itemId == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (itemId == R.id.action_exit) {
+            showExitDialog();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setupButtonListeners() {
         MaterialButton addRuleButton = findViewById(R.id.addRuleButton);
         addRuleButton.setOnClickListener(v -> {
@@ -117,14 +151,63 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        });
     }
 
+    private void showAboutDialog() {
+        // איסוף מידע על האפליקציה והמכשיר
+        String appName = getString(R.string.app_name);
+        String packageName = getPackageName();
+
+        // פרטי מערכת ההפעלה
+        String osVersion = "Android " + Build.VERSION.RELEASE + " API " +Build.VERSION.SDK_INT;
+
+        // תאריך הגשה
+        String submissionDate = "29/06/2025";
+        String developers = "יונתן חבה, טל דניאל, איב בן ישעיה";
+
+        // בניית הודעת האודות
+        String aboutMessage = String.format(
+                "שם האפליקציה: %s\n" +
+                        "מזהה האפליקציה: %s\n" +
+                        "מערכת הפעלה: %s\n\n" +
+                        "פותח על ידי: %s\n" +
+                        "תאריך הגשה: %s",
+                appName,
+                packageName,
+                osVersion,
+                developers,
+                submissionDate
+        );
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("אודות האפליקציה")
+                .setMessage(aboutMessage)
+                .setPositiveButton("סגור", null)
+                .create();
+
+        // הגדרת כיוון RTL לכל החלונית
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        }
+
+        dialog.show();
+    }
+
+    private void showExitDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("יציאה מהאפליקציה")
+                .setMessage("האם אתה בטוח שברצונך לצאת מהאפליקציה?")
+                .setPositiveButton("יציאה", (d, w) -> finishAffinity())
+                .setNegativeButton("ביטול", null)
+                .create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        }
+
+        dialog.show();
+    }
 
     @Override
     protected void onResume() {
@@ -160,7 +243,6 @@ public class HomeActivity extends AppCompatActivity {
         displayCurrentRingerMode();
         displayNextScheduledRule();
     }
-
 
     @Override
     protected void onPause() {
@@ -223,7 +305,6 @@ public class HomeActivity extends AppCompatActivity {
                 .show();
     }
 
-
     private void displayCurrentRingerMode() {
         int mode = audioManager.getRingerMode();
         String status;
@@ -281,5 +362,4 @@ public class HomeActivity extends AppCompatActivity {
             nextRuleId = -1;
         }
     }
-
 }

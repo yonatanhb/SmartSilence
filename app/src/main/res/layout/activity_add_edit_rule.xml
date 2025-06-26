@@ -31,6 +31,7 @@
                 android:layoutDirection="rtl">
 
                 <TextView
+                    android:id="@+id/textTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -291,25 +292,21 @@
                     android:textAlignment="viewStart"
                     android:gravity="start" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- Location Label - מחליף את תיבת הטקסט -->
+                <TextView
+                    android:id="@+id/labelLocationName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="שם המיקום"
-                    app:boxStrokeColor="@color/accent_color"
-                    app:hintTextColor="@color/accent_color"
+                    android:text="בחר מיקום מהמפה"
+                    android:textSize="16sp"
+                    android:textColor="@color/primary_text"
+                    android:padding="16dp"
                     android:layout_marginBottom="16dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:textAlignment="viewStart"
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputLocationName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:textColor="@color/primary_text"
-                        android:textAlignment="viewStart"
-                        android:gravity="start" />
-
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:drawablePadding="12dp"
+                    android:minHeight="56dp"
+/>
 
                 <!-- Map Container with rounded corners -->
                 <androidx.cardview.widget.CardView
