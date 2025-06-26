@@ -56,10 +56,33 @@ public class RulesActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadRules();
+    }
+
+    private void loadRules() {
+        new Thread(() -> {
+            List<RuleModel> rules = dbHelper.getAllRules();
+
+            runOnUiThread(() -> {
+                if (adapter == null) {
+                    adapter = new RulesAdapter(rules);
+                    recyclerView.setAdapter(adapter);
+                } else {
+                    adapter.rules.clear();
+                    adapter.rules.addAll(rules);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }).start();
+    }
+
 
     class RulesAdapter extends RecyclerView.Adapter<RulesAdapter.RuleViewHolder> {
 
-        private final List<RuleModel> rules;
+        public final List<RuleModel> rules;
 
         RulesAdapter(List<RuleModel> rules) {
             this.rules = rules;

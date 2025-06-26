@@ -34,11 +34,17 @@ import com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService;
 import com.yonatanh_tald_evem.smartsilence.utils.TimeUtils;
 import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
 
     private TextView ringerStatusTextView;
+    private TextView activeRulesTextView;
     private TextView nextRuleTextView;
     private ImageView ringerStatusIcon;
     private AudioManager audioManager;
@@ -87,6 +93,7 @@ public class HomeActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primary_color));
 
         // אתחול רכיבי ממשק
+        activeRulesTextView = findViewById(R.id.activeRulesTextView);
         ringerStatusTextView = findViewById(R.id.ringerStatusTextView);
         nextRuleTextView     = findViewById(R.id.nextRuleTextView);
         ringerStatusIcon     = findViewById(R.id.ringerStatusIcon);
@@ -94,21 +101,40 @@ public class HomeActivity extends AppCompatActivity {
         // אתחול שירותים ובסיס נתונים
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         dbHelper     = new RuleDatabaseHelper(this);
-//        dbHelper.deleteAllRules();
-//        dbHelper.insertTestTimeRule();
-//        dbHelper.insertLocationRule(
-//                "בית ספר",
-//                "תיכון רוטברג",
-//                31.987654,        // קו רוחב
-//                34.765432,        // קו אורך
-//                100,              // רדיוס במטרים
-//                true              // פעיל
-//        );
-
         setupButtonListeners();
-
         displayCurrentRingerMode();
         displayNextScheduledRule();
+    }
+
+    private void displayCurrentlyActiveRules() {
+        StringBuilder activeRulesText = new StringBuilder();
+        List<RuleModel> activeRules = dbHelper.getCurrentlyActiveRules();
+
+        for (RuleModel rule : activeRules) {
+            String name = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
+                    ? rule.getRuleName()
+                    : (rule.getType().equals("time") ? "כלל זמן ללא שם" : "כלל מיקום ללא שם");
+
+            if ("time".equals(rule.getType())) {
+                activeRulesText.append("• ")
+                        .append(name)
+                        .append(" (")
+                        .append(rule.getTimeStart()).append(" - ").append(rule.getTimeEnd()).append(")\n");
+            } else if ("location".equals(rule.getType())) {
+                activeRulesText.append("• ")
+                        .append(name)
+                        .append(" (מיקום: ")
+                        .append(rule.getLocationName() != null ? rule.getLocationName() : "לא מוגדר")
+                        .append(")\n");
+            }
+        }
+
+        // עדכון הטקסט
+        if (activeRulesText.length() > 0) {
+            activeRulesTextView.setText("חוקים פעילים כעת:\n" + activeRulesText.toString().trim());
+        } else {
+            activeRulesTextView.setText("אין חוקים פעילים כעת.");
+        }
     }
 
     @Override
@@ -242,6 +268,7 @@ public class HomeActivity extends AppCompatActivity {
 
         displayCurrentRingerMode();
         displayNextScheduledRule();
+        displayCurrentlyActiveRules();
     }
 
     @Override
@@ -336,30 +363,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void displayNextScheduledRule() {
-        List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
-        RuleModel nextRule = TimeUtils.findNextTimeRule(timeRules);
-
+        RuleModel nextRule = dbHelper.getNextScheduledTimeRule(); // תשתמש ברשימת העתידיים
         MaterialButton editRuleButton = findViewById(R.id.editRuleButton);
-        WeekDaysView weekDaysView     = findViewById(R.id.weekDaysView);
+        WeekDaysView weekDaysView = findViewById(R.id.weekDaysView);
 
         if (nextRule != null) {
             nextRuleTextView.setText(
-                    String.format("%s - %s", nextRule.getTimeStart(), nextRule.getTimeEnd())
+                    String.format("הכלל הקרוב הבא: %s - %s", nextRule.getTimeStart(), nextRule.getTimeEnd())
             );
             editRuleButton.setVisibility(View.VISIBLE);
-
+            weekDaysView.setVisibility(View.VISIBLE);
             weekDaysView.setSelectable(false);
             weekDaysView.setDaysMask(nextRule.getDaysMask());
-
-            // שמור את מזהה החוק הקרוב
             nextRuleId = nextRule.getId();
-
         } else {
             nextRuleTextView.setText("אין כלל זמן מתוזמן בקרוב");
             editRuleButton.setVisibility(View.GONE);
             weekDaysView.setVisibility(View.GONE);
-
             nextRuleId = -1;
         }
     }
+
+
 }

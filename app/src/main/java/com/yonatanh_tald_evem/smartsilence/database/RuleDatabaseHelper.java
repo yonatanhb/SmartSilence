@@ -18,7 +18,7 @@ import java.util.Locale;
 public class RuleDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME    = "smart_silence.db";
-    public static final int    DATABASE_VERSION = 3;  // גרסה 2 עם daysMask
+    public static final int    DATABASE_VERSION = 4;
 
     public static final String TABLE_RULES      = "rules";
     public static final String COLUMN_ID        = "id";
@@ -32,6 +32,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TIME_START= "timeStart";
     public static final String COLUMN_TIME_END  = "timeEnd";
     public static final String COLUMN_DAYS_MASK = "daysMask";
+    public static final String COLUMN_NOW_ACTIVE = "nowActive";
 
     private static final String CREATE_TABLE_RULES =
             "CREATE TABLE " + TABLE_RULES + " (" +
@@ -45,7 +46,8 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_RADIUS     + " INTEGER, " +
                     COLUMN_TIME_START + " TEXT, " +
                     COLUMN_TIME_END   + " TEXT, " +
-                    COLUMN_DAYS_MASK  + " INTEGER NOT NULL DEFAULT 0" +
+                    COLUMN_DAYS_MASK  + " INTEGER NOT NULL DEFAULT 0, " +
+                    COLUMN_NOW_ACTIVE + " INTEGER NOT NULL DEFAULT 0" +
                     ");";
 
     public RuleDatabaseHelper(Context context) {
@@ -368,6 +370,87 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
             Log.w("SmartSilence", "לא נמצא חוק למחיקה עם ID: " + id);
             return false;
         }
+    }
+
+    public void updateNowActiveStatus(int ruleId, boolean nowActive) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NOW_ACTIVE, nowActive ? 1 : 0);
+        db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(ruleId)});
+    }
+
+    /** מחזיר את כל החוקים שכרגע פעילים בפועל (nowActive = 1) */
+    public List<RuleModel> getCurrentlyActiveRules() {
+        List<RuleModel> rules = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null,
+                COLUMN_NOW_ACTIVE + "=?",
+                new String[]{"1"},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                RuleModel rule = new RuleModel();
+                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+                rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
+                rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
+                rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
+                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+                rule.setNowActive(true);
+                rules.add(rule);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        return rules;
+    }
+
+    /** מחזיר את החוק המתוזמן הבא שאינו פעיל כרגע (לפי שעה ויום) */
+    public RuleModel getNextScheduledTimeRule() {
+        List<RuleModel> rules = getActiveTimeRules();
+        Calendar now = Calendar.getInstance();
+        int nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        int todayIndex = (now.get(Calendar.DAY_OF_WEEK) - 1 + 7) % 7; // 0 = ראשון, 6 = שבת
+
+        RuleModel nextRule = null;
+        long minTimeUntil = Long.MAX_VALUE;
+
+        for (RuleModel rule : rules) {
+            for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
+                int dayIndex = (todayIndex + dayOffset) % 7;
+                if ((rule.getDaysMask() & (1 << dayIndex)) == 0) continue;
+
+                try {
+                    String[] parts = rule.getTimeStart().split(":");
+                    int ruleMinutes = Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+
+                    // אם זה היום, נוודא שהחוק עדיין לא התחיל
+                    if (dayOffset == 0 && ruleMinutes <= nowMinutes) continue;
+
+                    // חישוב זמן עד מועד החוק (בדקות)
+                    long timeUntil = dayOffset * 24 * 60L + (ruleMinutes - nowMinutes);
+                    if (timeUntil < minTimeUntil) {
+                        minTimeUntil = timeUntil;
+                        nextRule = rule;
+                    }
+
+                } catch (Exception e) {
+                    Log.e("SmartSilence", "שגיאה בפענוח זמן החוק: " + rule.getTimeStart(), e);
+                }
+            }
+        }
+
+        return nextRule;
     }
 
 }

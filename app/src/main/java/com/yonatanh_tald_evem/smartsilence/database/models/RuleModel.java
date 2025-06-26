@@ -18,6 +18,9 @@ public class RuleModel {
     private String timeEnd;
     private int daysMask;
 
+    private boolean nowActive;
+
+
     // --- Getters and Setters ---
 
     public int getId() {
@@ -106,6 +109,14 @@ public class RuleModel {
 
     public void setDaysMask(int daysMask){
         this.daysMask = daysMask;
+    }
+
+    public boolean isNowActive() {
+        return nowActive;
+    }
+
+    public void setNowActive(boolean nowActive) {
+        this.nowActive = nowActive;
     }
 
 

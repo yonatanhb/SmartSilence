@@ -100,6 +100,7 @@ public class LocationMonitorService extends Service {
      */
     private void checkAndApplyLocationRules(Location location) {
         Log.d("SmartSilence", "Received location: Lat=" + location.getLatitude() + ", Lon=" + location.getLongitude());
+
         boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
                 .getBoolean("app_active", true);
         if (!isAppActive) return;
@@ -110,8 +111,8 @@ public class LocationMonitorService extends Service {
         boolean locationRuleActive = false;
         RuleModel activeRule = null;
         List<RuleModel> locationRules = dbHelper.getActiveLocationRules();
-        for (RuleModel rule : locationRules) {
 
+        for (RuleModel rule : locationRules) {
             float[] result = new float[1];
             Location.distanceBetween(
                     location.getLatitude(), location.getLongitude(),
@@ -119,26 +120,30 @@ public class LocationMonitorService extends Service {
                     result
             );
             float distance = result[0];
-            if (distance <= rule.getRadius()) {
+
+            boolean isInside = distance <= rule.getRadius();
+
+            // עדכון העמודה nowActive לפי האם החוק תקף
+            rule.setNowActive(isInside);
+            dbHelper.updateNowActiveStatus(rule.getId(), isInside);
+
+            if (isInside && !locationRuleActive) {
                 locationRuleActive = true;
                 activeRule = rule;
-                break;
             }
         }
 
-        // לוגים למעקב מלא!
         Log.d("SmartSilence", "checkAndApplyLocationRules: locationRuleActive=" + locationRuleActive +
                 (activeRule != null ? ", rule=" + activeRule.getLocationName() : ""));
 
-        // עדכון תמידי (גם כשיוצאים מאזורים)
         getSharedPreferences("smartsilence_state", MODE_PRIVATE)
                 .edit()
                 .putBoolean("location_rule_active", locationRuleActive)
                 .apply();
 
-        // קריאה תמידית — כך שיתבצע חזרה למצב רגיל ברגע שאין חוקים פעילים
         com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

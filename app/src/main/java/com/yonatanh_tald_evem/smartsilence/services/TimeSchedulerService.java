@@ -46,9 +46,14 @@ public class TimeSchedulerService extends Service {
         boolean timeRuleActive = false;
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
-            if (com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule)) {
+            boolean isActiveNow = com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
+
+            // עדכון עמודת nowActive עבור כל חוק
+            rule.setNowActive(isActiveNow);
+            dbHelper.updateNowActiveStatus(rule.getId(), isActiveNow);
+
+            if (isActiveNow && !timeRuleActive) {
                 timeRuleActive = true;
-                break;
             }
         }
 
@@ -59,8 +64,6 @@ public class TimeSchedulerService extends Service {
 
         com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
-
-
 
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {
