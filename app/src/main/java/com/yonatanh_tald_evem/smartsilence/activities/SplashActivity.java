@@ -37,6 +37,7 @@ public class SplashActivity extends AppCompatActivity {
         // Start sequential animations
         startAnimations();
 
+        // Move to the HomeActivity after the splash duration
         new Handler().postDelayed(() -> {
             startActivity(new Intent(this, HomeActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -44,6 +45,7 @@ public class SplashActivity extends AppCompatActivity {
         }, SPLASH_DURATION_MS);
     }
 
+    // Find all required views and set initial alpha/translation values for animation
     private void initViews() {
         logoContainer = findViewById(R.id.logoContainer);
         teamContainer = findViewById(R.id.teamContainer);
@@ -51,17 +53,20 @@ public class SplashActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         logo = findViewById(R.id.logo);
 
+        // Set views to be initially transparent
         logoContainer.setAlpha(0f);
         teamContainer.setAlpha(0f);
         dateContainer.setAlpha(0f);
         progressBar.setAlpha(0f);
 
+        // Set initial positions (off-screen or scaled down) for animation effect
         logoContainer.setTranslationY(-200f);
         teamContainer.setTranslationY(100f);
         dateContainer.setTranslationY(100f);
         progressBar.setTranslationY(50f);
     }
 
+    // Orchestrate the animation sequence using delays
     private void startAnimations() {
         animateLogo();
 
@@ -72,6 +77,7 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(this::animateProgressBar, ANIMATION_DELAY * 3);
     }
 
+    // Logo entrance animation (fade, slide, and scale)
     private void animateLogo() {
         AnimatorSet logoAnimSet = new AnimatorSet();
 
@@ -86,6 +92,7 @@ public class SplashActivity extends AppCompatActivity {
         logoAnimSet.start();
     }
 
+    // Team info fade and slide-up animation
     private void animateTeamInfo() {
         AnimatorSet teamAnimSet = new AnimatorSet();
 
@@ -98,6 +105,7 @@ public class SplashActivity extends AppCompatActivity {
         teamAnimSet.start();
     }
 
+    // Submission date fade, slide, and scale animation
     private void animateDate() {
         AnimatorSet dateAnimSet = new AnimatorSet();
 
@@ -112,6 +120,7 @@ public class SplashActivity extends AppCompatActivity {
         dateAnimSet.start();
     }
 
+    // Progress bar fade and slide animation
     private void animateProgressBar() {
         AnimatorSet progressAnimSet = new AnimatorSet();
 
