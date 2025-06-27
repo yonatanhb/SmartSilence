@@ -85,11 +85,11 @@ public class AddEditRuleActivity extends AppCompatActivity {
         isEditing = editingRuleId != -1;
 
         if (isEditing) {
-            textTitle.setText("עריכת חוק");
+            textTitle.setText(R.string.edit_rule_title);
             loadRule(editingRuleId);
         } else {
-            textTitle.setText("יצירת חוק חדש");
-            showTypeFields("time");
+            textTitle.setText(R.string.create_rule_title);
+            showTypeFields(getString(R.string.rule_type_time));
             radioTime.setChecked(true);
         }
 
@@ -144,7 +144,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
     private void updateMapMarkerAndCircle() {
         if (map == null || selectedLatLng == null) return;
         map.clear();
-        map.addMarker(new MarkerOptions().position(selectedLatLng).title("מיקום נבחר"));
+        map.addMarker(new MarkerOptions().position(selectedLatLng).title(getString(R.string.selected_location)));
         updateRadiusCircle();
     }
 
@@ -189,7 +189,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
     private void updateLocationName(LatLng latLng) {
         new Thread(() -> {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            String placeName = "מיקום נבחר";
+            String placeName = getString(R.string.selected_location);
             try {
                 List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                 if (addresses != null && !addresses.isEmpty()) {
@@ -234,7 +234,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         btnTimeStart = findViewById(R.id.btnTimeStart);
         btnTimeEnd = findViewById(R.id.btnTimeEnd);
         btnSave = findViewById(R.id.btnSaveRule);
-        labelLocationName = findViewById(R.id.labelLocationName); // שונה ל-TextView
+        labelLocationName = findViewById(R.id.labelLocationName);
         inputRadius = findViewById(R.id.inputRadius);
         timeFieldsCard = findViewById(R.id.timeFieldsCard);
         locationFieldsCard = findViewById(R.id.locationFieldsCard);
@@ -248,7 +248,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
             if (checkedId == R.id.radioTime) {
                 showTypeFields("time");
             } else if (checkedId == R.id.radioLocation) {
-                showTypeFields("location");
+                showTypeFields(getString(R.string.rule_type_location));
             }
         });
 
@@ -280,7 +280,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
             animateCardVisibility(timeFieldsCard, false);
             animateCardVisibility(locationFieldsCard, true);
             if (selectedLatLng == null) {
-                labelLocationName.setText("בחר מיקום מהמפה");
+                labelLocationName.setText(R.string.select_location_from_map);
             }
         }
     }
@@ -348,7 +348,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         RuleModel rule = dbHelper.getRuleById(id);
 
         if (rule == null) {
-            Toast.makeText(this, "החוק לא נמצא", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.rule_not_found, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -357,7 +357,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         if ("time".equals(rule.getType())) {
             radioTime.setChecked(true);
-            showTypeFields("time");
+            showTypeFields(getString(R.string.rule_type_time));
 
             timeStart = rule.getTimeStart();
             timeEnd = rule.getTimeEnd();
@@ -367,7 +367,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         } else if ("location".equals(rule.getType())) {
             radioLocation.setChecked(true);
-            showTypeFields("location");
+            showTypeFields(getString(R.string.rule_type_location));
 
             labelLocationName.setText(rule.getLocationName());
             inputRadius.setText(String.valueOf(rule.getRadius()));
@@ -385,10 +385,10 @@ public class AddEditRuleActivity extends AppCompatActivity {
     // Validates and saves a new or edited rule to the database
     private void saveRule() {
         String name = inputRuleName.getText().toString().trim();
-        String type = radioTime.isChecked() ? "time" : "location";
+        String type = radioTime.isChecked() ? getString(R.string.rule_type_time) : getString(R.string.rule_type_location);
 
         if (TextUtils.isEmpty(name)) {
-            inputRuleName.setError("נא למלא שם חוק");
+            inputRuleName.setError(getString(R.string.error_rule_name_required));
             inputRuleName.requestFocus();
             return;
         }
@@ -400,7 +400,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         if ("time".equals(type)) {
             if (timeStart.isEmpty() || timeEnd.isEmpty()) {
-                Toast.makeText(this, "יש לבחור שעות התחלה וסיום", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_select_time_range, Toast.LENGTH_SHORT).show();
                 return;
             }
             rule.setTimeStart(timeStart);
@@ -408,7 +408,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
             rule.setDaysMask(weekDaysView.getDaysMask());
         } else {
             if (selectedLatLng == null) {
-                Toast.makeText(this, "בחר מיקום במפה", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_select_location, Toast.LENGTH_SHORT).show();
                 return;
             }
             try {
@@ -417,7 +417,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
                 rule.setLongitude(selectedLatLng.longitude);
                 rule.setRadius(Integer.parseInt(inputRadius.getText().toString()));
             } catch (Exception e) {
-                Toast.makeText(this, "שדות מיקום לא תקינים - הזן רדיוס תקין", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_invalid_location_fields, Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -428,11 +428,11 @@ public class AddEditRuleActivity extends AppCompatActivity {
             rule.setId(editingRuleId);
             boolean updated = dbHelper.updateRuleById(rule);
             if (updated) {
-                Toast.makeText(this, "החוק עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.rule_updated_success, Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK);
                 finish();
             } else {
-                Toast.makeText(this, "עדכון נכשל", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.rule_update_failed, Toast.LENGTH_SHORT).show();
             }
         } else {
             if ("time".equals(type)) {
@@ -447,7 +447,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
                         true
                 );
             }
-            Toast.makeText(this, "החוק נוסף בהצלחה", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.rule_added_successfully, Toast.LENGTH_SHORT).show();
             finish();
         }
     }

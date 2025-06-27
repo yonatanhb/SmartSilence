@@ -102,15 +102,15 @@ public class RulesActivity extends AppCompatActivity {
             RuleModel rule = rules.get(position);
 
             // Set rule name
-            String name = rule.getRuleName() != null ? rule.getRuleName() : "(ללא שם)";
+            String name = rule.getRuleName() != null ? rule.getRuleName() : getString(R.string.unnamed_rule);
             holder.ruleText.setText(name);
 
             // Show rule details depending on type
             String details;
             if ("time".equals(rule.getType())) {
-                details = "זמן: " + rule.getTimeStart() + "–" + rule.getTimeEnd();
+                details = getString(R.string.time_label, rule.getTimeStart(), rule.getTimeEnd());
             } else {
-                details = "מיקום: " + rule.getLocationName();
+                details = getString(R.string.location_label, rule.getLocationName());
             }
             holder.ruleDetails.setText(details);
 
@@ -122,16 +122,16 @@ public class RulesActivity extends AppCompatActivity {
             holder.deleteBtn.setOnClickListener(v -> {
                 int currentPosition = holder.getAdapterPosition();
                 if (currentPosition == RecyclerView.NO_POSITION) {
-                    Log.w("SmartSilence", "מיקום לא תקף למחיקה");
+                    Log.w("SmartSilence", getString(R.string.delete_invalid_position));
                     return;
                 }
 
                 RuleModel ruleToDelete = rules.get(currentPosition);
 
                 new AlertDialog.Builder(holder.itemView.getContext())
-                        .setTitle("אישור מחיקה")
-                        .setMessage("האם למחוק את החוק \"" + ruleToDelete.getRuleName() + "\"?")
-                        .setPositiveButton("מחק", (dialog, which) -> {
+                        .setTitle(getString(R.string.delete_confirmation_title))
+                        .setMessage(getString(R.string.delete_confirmation_message, ruleToDelete.getRuleName()))
+                        .setPositiveButton(getString(R.string.delete_button), (dialog, which) -> {
 
                             View dialogView = LayoutInflater.from(holder.itemView.getContext())
                                     .inflate(R.layout.dialog_loading, null);
@@ -153,20 +153,20 @@ public class RulesActivity extends AppCompatActivity {
                                         if (safePos != RecyclerView.NO_POSITION && safePos < rules.size()) {
                                             rules.remove(safePos);
                                             notifyItemRemoved(safePos);
-                                            Log.d("SmartSilence", "חוק נמחק: " + ruleToDelete.getRuleName());
+                                            Log.d("SmartSilence", getString(R.string.rule_deleted_log, ruleToDelete.getRuleName()));
                                         }
                                     } else {
-                                        Toast.makeText(holder.itemView.getContext(), "המחיקה נכשלה", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(holder.itemView.getContext(), holder.itemView.getContext().getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (Exception e) {
-                                    Log.e("SmartSilence", "שגיאה במחיקה: " + e.getMessage(), e);
-                                    Toast.makeText(holder.itemView.getContext(), "שגיאה במחיקה", Toast.LENGTH_SHORT).show();
+                                    Log.e("SmartSilence", getString(R.string.delete_error) + ": " + e.getMessage(), e);
+                                    Toast.makeText(holder.itemView.getContext(), holder.itemView.getContext().getString(R.string.delete_error), Toast.LENGTH_SHORT).show();
                                 } finally {
                                     loadingDialog.dismiss();
                                 }
                             }, 500);
                         })
-                        .setNegativeButton("ביטול", null)
+                        .setNegativeButton(getString(R.string.cancel_button), null)
                         .show();
             });
 

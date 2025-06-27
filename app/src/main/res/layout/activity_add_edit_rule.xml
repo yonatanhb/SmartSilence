@@ -35,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="יצירת חוק חדש"
+                    android:text="@string/create_new_rule"
                     android:textColor="@color/primary_text"
                     android:textSize="24sp"
                     android:textStyle="bold"
@@ -45,7 +45,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="הגדר חוק חכם להשתקת הטלפון"
+                    android:text="@string/create_rule_subtitle"
                     android:textColor="@color/secondary_text"
                     android:textSize="14sp"
                     android:textAlignment="viewStart"
@@ -74,7 +74,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="שם החוק"
+                    android:text="@string/rule_name_label"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_text"
@@ -85,7 +85,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="הכנס שם לחוק"
+                    android:hint="@string/rule_name_hint"
                     app:boxStrokeColor="@color/accent_color"
                     app:hintTextColor="@color/accent_color"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -123,7 +123,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="סוג החוק"
+                    android:text="@string/rule_type_label"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_text"
@@ -143,7 +143,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="חוק זמן"
+                        android:text="@string/time_rule"
                         android:textSize="14sp"
                         android:textColor="@color/primary_text"
                         android:buttonTint="@color/accent_color"
@@ -159,7 +159,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="חוק מיקום"
+                        android:text="@string/location_rule"
                         android:textSize="14sp"
                         android:textColor="@color/primary_text"
                         android:buttonTint="@color/accent_color"
@@ -198,7 +198,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="הגדרות זמן"
+                    android:text="@string/time_settings_label"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_text"
@@ -209,7 +209,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="בחר ימים בשבוע:"
+                    android:text="@string/select_days_label"
                     android:textSize="14sp"
                     android:textColor="@color/secondary_text"
                     android:layout_marginBottom="12dp"
@@ -235,7 +235,7 @@
                         android:layout_width="0dp"
                         android:layout_height="56dp"
                         android:layout_weight="1"
-                        android:text="שעת התחלה"
+                        android:text="@string/start_time_button"
                         android:textSize="14sp"
                         android:layout_marginStart="8dp"
                         app:cornerRadius="12dp"
@@ -248,7 +248,7 @@
                         android:layout_width="0dp"
                         android:layout_height="56dp"
                         android:layout_weight="1"
-                        android:text="שעת סיום"
+                        android:text="@string/end_time_button"
                         android:textSize="14sp"
                         android:layout_marginEnd="8dp"
                         app:cornerRadius="12dp"
@@ -284,7 +284,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="הגדרות מיקום"
+                    android:text="@string/location_settings_label"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_text"
@@ -292,12 +292,11 @@
                     android:textAlignment="viewStart"
                     android:gravity="start" />
 
-                <!-- Location Label - מחליף את תיבת הטקסט -->
                 <TextView
                     android:id="@+id/labelLocationName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="בחר מיקום מהמפה"
+                    android:text="@string/select_location_label"
                     android:textSize="16sp"
                     android:textColor="@color/primary_text"
                     android:padding="16dp"
@@ -308,7 +307,6 @@
                     android:minHeight="56dp"
 />
 
-                <!-- Map Container with rounded corners -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
@@ -316,7 +314,7 @@
                     app:cardElevation="2dp"
                     android:layout_marginBottom="16dp">
 
-                    <fragment
+                    <androidx.fragment.app.FragmentContainerView
                         android:id="@+id/mapFragment"
                         android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="match_parent"
@@ -327,22 +325,22 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="לחץ על המפה לבחירת מיקום"
+                    android:text="@string/tap_map_instruction"
                     android:textSize="12sp"
                     android:textColor="@color/secondary_text"
                     android:layout_marginBottom="16dp"
-                    android:drawableStart="@drawable/ic_info"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical|start"
-                    android:textAlignment="viewStart" />
+                    android:textAlignment="viewStart"
+                    app:drawableStartCompat="@drawable/ic_info" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="רדיוס במטרים"
+                    android:hint="@string/radius_hint"
                     app:boxStrokeColor="@color/accent_color"
                     app:hintTextColor="@color/accent_color"
-                    app:suffixText="מ׳"
+                    app:suffixText="@string/radius_suffix"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -350,7 +348,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
-                        android:text="100"
+                        android:text="@string/one_hundred_number"
                         android:textColor="@color/primary_text"
                         android:textAlignment="viewStart"
                         android:gravity="start" />
@@ -366,7 +364,7 @@
             android:id="@+id/btnSaveRule"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="שמור חוק"
+            android:text="@string/save_rule_button"
             android:textSize="16sp"
             android:textStyle="bold"
             app:cornerRadius="16dp"

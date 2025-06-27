@@ -41,37 +41,117 @@
     <string name="ringer_mode_silent">מצב שקט</string>
     <string name="ringer_mode_vibrate">רטט בלבד</string>
     <string name="ringer_mode_normal">מצב רגיל</string>
-
     <string name="unnamed_time_rule">כלל זמן ללא שם</string>
     <string name="unnamed_location_rule">כלל מיקום ללא שם</string>
-
     <string name="location_not_set">לא מוגדר</string>
     <string name="location">מיקום:</string>
     <string name="no_active_rules">אין חוקים פעילים כעת.</string>
-
     <string name="next_rule_format">הכלל הקרוב הבא: %1$s - %2$s</string>
     <string name="no_next_rule">אין כלל זמן מתוזמן בקרוב</string>
-
     <string name="about_dialog_title">אודות האפליקציה</string>
     <string name="about_dialog_message">
         שם האפליקציה: %1$s&#10;מזהה האפליקציה: %2$s&#10;מערכת הפעלה: %3$s&#10;&#10;פותח על ידי: %4$s&#10;תאריך הגשה: %5$s
     </string>
     <string name="about_dialog_close">סגור</string>
-
     <string name="exit_dialog_title">יציאה מהאפליקציה</string>
     <string name="exit_dialog_message">האם אתה בטוח שברצונך לצאת מהאפליקציה?</string>
     <string name="exit_dialog_confirm">יציאה</string>
     <string name="exit_dialog_cancel">ביטול</string>
-
-<!--    <string name="dnd_permission_title">הרשאת 'נא לא להפריע'</string>-->
-<!--    <string name="dnd_permission_message">כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות 'נא לא להפריע'.</string>-->
+    <string name="dnd_permission_title">הרשאת \'נא לא להפריע\'</string>
+    <string name="dnd_permission_message">כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות \'נא לא להפריע\'.</string>
     <string name="permission_allow">לאפשר</string>
     <string name="permission_cancel">בטל</string>
-
     <string name="location_permission_title">דרושה הרשאת מיקום ברקע</string>
-<!--    <string name="location_permission_message">כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר 'גישה למיקום תמיד'.</string>-->
+    <string name="location_permission_message">כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר \'גישה למיקום תמיד'\.</string>
     <string name="open_settings">פתח הגדרות</string>
-
+    <string name="package_word">package:</string>
     <string name="developers">יונתן חבה, טל דניאל, איב בן ישעיה</string>
-<!--    <string name="submission_date">29/06/2025</string>-->
+    <string name="submission_date_num">29/06/2025</string>
+    <string name="android_version_format">Android %1$s API %2$d</string>
+
+    <!-- Add Edit Rule Activity -->
+    <string name="create_new_rule">יצירת חוק חדש</string>
+    <string name="create_rule_subtitle">הגדר חוק חכם להשתקת הטלפון</string>
+    <string name="rule_name_label">שם החוק</string>
+    <string name="rule_name_hint">הכנס שם לחוק</string>
+    <string name="rule_type_label">סוג החוק</string>
+    <string name="time_rule">חוק זמן</string>
+    <string name="location_rule">חוק מיקום</string>
+    <string name="time_settings_label">הגדרות זמן</string>
+    <string name="select_days_label">בחר ימים בשבוע:</string>
+    <string name="start_time_button">שעת התחלה</string>
+    <string name="end_time_button">שעת סיום</string>
+    <string name="location_settings_label">הגדרות מיקום</string>
+    <string name="select_location_label">בחר מיקום מהמפה</string>
+    <string name="tap_map_instruction">לחץ על המפה לבחירת מיקום</string>
+    <string name="radius_hint">רדיוס במטרים</string>
+    <string name="radius_suffix">מ׳</string>
+    <string name="save_rule_button">שמור חוק</string>
+    <string name="one_hundred_number">"100"</string>
+
+    <string name="edit_rule_title">עריכת חוק</string>
+    <string name="create_rule_title">יצירת חוק חדש</string>
+    <string name="rule_type_time">time</string>
+    <string name="rule_type_location">location</string>
+    <string name="selected_location">מיקום נבחר</string>
+    <string name="select_location_from_map">בחר מיקום מהמפה</string>
+    <string name="rule_not_found">החוק לא נמצא</string>
+    <string name="error_rule_name_required">נא למלא שם חוק</string>
+    <string name="error_select_time_range">יש לבחור שעות התחלה וסיום</string>
+    <string name="error_select_location">בחר מיקום במפה</string>
+    <string name="error_invalid_location_fields">שדות מיקום לא תקינים - הזן רדיוס תקין</string>
+    <string name="rule_updated_success">החוק עודכן בהצלחה</string>
+    <string name="rule_update_failed">עדכון נכשל</string>
+    <string name="rule_added_successfully">החוק נוסף בהצלחה</string>
+
+    <!-- Rules Activity -->
+    <string name="rules_screen_title">ניהול חוקים</string>
+    <string name="add_new_rule_description">הוסף חוק חדש</string>
+
+    <string name="unnamed_rule">(ללא שם)</string>
+    <string name="time_label">זמן: %1$s–%2$s</string>
+    <string name="location_label">מיקום: %1$s</string>
+    <string name="delete_confirmation_title">אישור מחיקה</string>
+    <string name="delete_confirmation_message">האם למחוק את החוק "%1$s"?</string>
+    <string name="delete_button">מחק</string>
+    <string name="cancel_button">ביטול</string>
+    <string name="delete_failed">המחיקה נכשלה</string>
+    <string name="delete_error">שגיאה במחיקה</string>
+    <string name="delete_invalid_position">מיקום לא תקף למחיקה</string>
+    <string name="rule_deleted_log">חוק נמחק: %1$s</string>
+
+    <!-- Settings Activity -->
+    <string name="settings_screen_title">הגדרות מערכת</string>
+    <string name="app_activation_subtitle">השתקה חכמה בהתאם למיקום ולוח זמנים</string>
+    <string name="notifications_title">התראות מערכת</string>
+    <string name="notifications_subtitle">קבלת עדכונים על פעילות המערכת</string>
+
+    <string name="log_push_enabled">Push notifications enabled</string>
+    <string name="log_push_disabled">Push notifications disabled</string>
+    <string name="log_app_active">App active: %1$s</string>
+
+    <!-- Loading -->
+    <string name="deleting_rule">מוחק חוק...</string>
+
+    <!-- Rule item card -->
+    <string name="edit_button_description">עריכה</string>
+    <string name="delete_button_description">מחיקה</string>
+    <string name="rule_name_placeholder">שם החוק</string>
+    <string name="rule_details_placeholder">פרטי החוק</string>
+    <string name="rule_days_placeholder">ימים</string>
+
+    <!-- Database -->
+    <string name="days_everyday">כל יום</string>
+    <string name="day_sunday">א׳</string>
+    <string name="day_monday">ב׳</string>
+    <string name="day_tuesday">ג׳</string>
+    <string name="day_wednesday">ד׳</string>
+    <string name="day_thursday">ה׳</string>
+    <string name="day_friday">ו׳</string>
+    <string name="day_saturday">ש׳</string>
+    <string name="log_attempting_to_delete_rule">מנסה למחוק חוק עם ID: %1$d</string>
+    <string name="log_rule_deleted_success">החוק נמחק בהצלחה. rowsAffected = %1$d</string>
+    <string name="log_rule_delete_not_found">לא נמצא חוק למחיקה עם ID: %1$d</string>
+    <string name="log_rule_time_parse_error">שגיאה בפענוח זמן החוק: %1$s</string>
+
 </resources>

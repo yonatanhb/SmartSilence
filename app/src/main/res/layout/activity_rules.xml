@@ -4,12 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- כותרת -->
     <TextView
         android:id="@+id/rulesTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="ניהול חוקים"
+        android:text="@string/rules_screen_title"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- רשימת חוקים -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rulesRecyclerView"
         android:layout_width="0dp"
@@ -29,12 +27,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- כפתור הוספת חוק -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addRuleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="הוסף חוק חדש"
+        android:contentDescription="@string/add_new_rule_description"
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

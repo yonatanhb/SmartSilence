@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.yonatanh_tald_evem.smartsilence.R;
 import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DAYS_MASK = "daysMask";
     public static final String COLUMN_NOW_ACTIVE = "nowActive";
 
+    private final Context context;
+
+
     // SQL to create the rules table
     private static final String CREATE_TABLE_RULES =
             "CREATE TABLE " + TABLE_RULES + " (" +
@@ -52,6 +56,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
 
     public RuleDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     // Called only when the DB is first created
@@ -63,7 +68,6 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     // Called when upgrading DB version (drop and recreate table)
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // פשוט מוחק ובונה מחדש, כי הנתונים הישנים לא רלוונטיים
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RULES);
         onCreate(db);
     }
@@ -102,10 +106,9 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_LONGITUDE, longitude);
         values.put(COLUMN_RADIUS, radius);
 
-        // לשדות שאינם רלוונטיים (חוק מיקום) - אפשר להשאיר ריקים/null
         values.putNull(COLUMN_TIME_START);
         values.putNull(COLUMN_TIME_END);
-        values.put(COLUMN_DAYS_MASK, 0); // לא רלוונטי למיקום
+        values.put(COLUMN_DAYS_MASK, 0);
 
         db.insert(TABLE_RULES, null, values);
     }
@@ -212,7 +215,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         List<RuleModel> rules = getActiveTimeRules();
         Calendar now = Calendar.getInstance();
         int nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
-        int todayIndex = (now.get(Calendar.DAY_OF_WEEK) - 1 + 7) % 7; // 0 = ראשון, 6 = שבת
+        int todayIndex = (now.get(Calendar.DAY_OF_WEEK) - 1 + 7) % 7;
 
         RuleModel nextRule = null;
         long minTimeUntil = Long.MAX_VALUE;
@@ -226,10 +229,8 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
                     String[] parts = rule.getTimeStart().split(":");
                     int ruleMinutes = Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
 
-                    // אם זה היום, נוודא שהחוק עדיין לא התחיל
                     if (dayOffset == 0 && ruleMinutes <= nowMinutes) continue;
 
-                    // חישוב זמן עד מועד החוק (בדקות)
                     long timeUntil = dayOffset * 24 * 60L + (ruleMinutes - nowMinutes);
                     if (timeUntil < minTimeUntil) {
                         minTimeUntil = timeUntil;
@@ -237,7 +238,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
                     }
 
                 } catch (Exception e) {
-                    Log.e("SmartSilence", "שגיאה בפענוח זמן החוק: " + rule.getTimeStart(), e);
+                    Log.e("SmartSilence", context.getString(R.string.log_rule_time_parse_error, rule.getTimeStart()), e);
                 }
             }
         }
@@ -356,15 +357,15 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     // Deletes a specific rule by ID, with log
     public boolean deleteRuleById(int id) {
         SQLiteDatabase db = getWritableDatabase();
-        Log.d("SmartSilence", "מנסה למחוק חוק עם ID: " + id);
+        Log.d("SmartSilence", context.getString(R.string.log_attempting_to_delete_rule, id));
 
         int rowsAffected = db.delete(TABLE_RULES, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
 
         if (rowsAffected > 0) {
-            Log.d("SmartSilence", "החוק נמחק בהצלחה. rowsAffected = " + rowsAffected);
+            Log.d("SmartSilence", context.getString(R.string.log_rule_deleted_success, rowsAffected));
             return true;
         } else {
-            Log.w("SmartSilence", "לא נמצא חוק למחיקה עם ID: " + id);
+            Log.w("SmartSilence", context.getString(R.string.log_rule_delete_not_found, id));
             return false;
         }
     }
@@ -372,12 +373,20 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     // Converts bitmask of days into readable string
     public String getDaysString(int daysMask) {
         if (daysMask == 0b01111111) {
-            return "כל יום";
+            return context.getString(R.string.days_everyday);
         }
 
-        String[] days = {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"};
-        StringBuilder result = new StringBuilder();
+        String[] days = {
+                context.getString(R.string.day_sunday),
+                context.getString(R.string.day_monday),
+                context.getString(R.string.day_tuesday),
+                context.getString(R.string.day_wednesday),
+                context.getString(R.string.day_thursday),
+                context.getString(R.string.day_friday),
+                context.getString(R.string.day_saturday)
+        };
 
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < 7; i++) {
             if ((daysMask & (1 << i)) != 0) {
                 if (result.length() > 0) result.append(", ");

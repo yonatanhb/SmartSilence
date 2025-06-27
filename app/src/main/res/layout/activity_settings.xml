@@ -10,7 +10,7 @@
         android:id="@+id/settingsTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="הגדרות מערכת"
+        android:text="@string/settings_screen_title"
         android:textSize="24sp"
         android:textColor="@color/text_primary"
         android:textStyle="bold"
@@ -53,7 +53,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="SmartSilence"
+                        android:text="@string/app_name"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-medium"/>
@@ -61,7 +61,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="השתקה חכמה בהתאם למיקום ולוח זמנים"
+                        android:text="@string/app_activation_subtitle"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginTop="4dp"/>
@@ -97,7 +97,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="התראות מערכת"
+                        android:text="@string/notification_title"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-medium"/>
@@ -105,7 +105,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="קבלת עדכונים על פעילות המערכת"
+                        android:text="@string/notifications_subtitle"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginTop="4dp"/>

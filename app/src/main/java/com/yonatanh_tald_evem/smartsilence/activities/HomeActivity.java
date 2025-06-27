@@ -290,13 +290,13 @@ public class HomeActivity extends AppCompatActivity {
 
     // Display the next scheduled time-based rule
     private void displayNextScheduledRule() {
-        RuleModel nextRule = dbHelper.getNextScheduledTimeRule(); // תשתמש ברשימת העתידיים
+        RuleModel nextRule = dbHelper.getNextScheduledTimeRule();
         MaterialButton editRuleButton = findViewById(R.id.editRuleButton);
         WeekDaysView weekDaysView = findViewById(R.id.weekDaysView);
 
         if (nextRule != null) {
             nextRuleTextView.setText(
-                    String.format("הכלל הקרוב הבא: %s - %s", nextRule.getTimeStart(), nextRule.getTimeEnd())
+                    getString(R.string.next_rule_format, nextRule.getTimeStart(), nextRule.getTimeEnd())
             );
             editRuleButton.setVisibility(View.VISIBLE);
             weekDaysView.setVisibility(View.VISIBLE);
@@ -304,7 +304,7 @@ public class HomeActivity extends AppCompatActivity {
             weekDaysView.setDaysMask(nextRule.getDaysMask());
             nextRuleId = nextRule.getId();
         } else {
-            nextRuleTextView.setText("אין כלל זמן מתוזמן בקרוב");
+            nextRuleTextView.setText(R.string.next_rule_format);
             editRuleButton.setVisibility(View.GONE);
             weekDaysView.setVisibility(View.GONE);
             nextRuleId = -1;
@@ -315,16 +315,12 @@ public class HomeActivity extends AppCompatActivity {
     private void showAboutDialog() {
         String appName = getString(R.string.app_name);
         String packageName = getPackageName();
-        String osVersion = "Android " + Build.VERSION.RELEASE + " API " +Build.VERSION.SDK_INT;
-        String submissionDate = "29/06/2025";
-        String developers = "יונתן חבה, טל דניאל, איב בן ישעיה";
+        String osVersion = getString(R.string.android_version_format, Build.VERSION.RELEASE, Build.VERSION.SDK_INT);
+        String submissionDate = getString(R.string.submission_date_num);
+        String developers = getString(R.string.developers);
 
-        String aboutMessage = String.format(
-                "שם האפליקציה: %s\n" +
-                        "מזהה האפליקציה: %s\n" +
-                        "מערכת הפעלה: %s\n\n" +
-                        "פותח על ידי: %s\n" +
-                        "תאריך הגשה: %s",
+        String aboutMessage = getString(
+                R.string.about_dialog_message,
                 appName,
                 packageName,
                 osVersion,
@@ -333,9 +329,9 @@ public class HomeActivity extends AppCompatActivity {
         );
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("אודות האפליקציה")
+                .setTitle(R.string.about_dialog_title)
                 .setMessage(aboutMessage)
-                .setPositiveButton("סגור", null)
+                .setPositiveButton(R.string.about_dialog_close, null)
                 .create();
 
         Window window = dialog.getWindow();
@@ -349,10 +345,10 @@ public class HomeActivity extends AppCompatActivity {
     // Show confirmation dialog before exiting app
     private void showExitDialog() {
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("יציאה מהאפליקציה")
-                .setMessage("האם אתה בטוח שברצונך לצאת מהאפליקציה?")
-                .setPositiveButton("יציאה", (d, w) -> finishAffinity())
-                .setNegativeButton("ביטול", null)
+                .setTitle(R.string.exit_dialog_title)
+                .setMessage(R.string.exit_dialog_message)
+                .setPositiveButton(R.string.exit_dialog_confirm, (d, w) -> finishAffinity())
+                .setNegativeButton(R.string.exit_dialog_cancel, null)
                 .create();
         Window window = dialog.getWindow();
         if (window != null) {
@@ -365,25 +361,25 @@ public class HomeActivity extends AppCompatActivity {
     // Show dialog to request "Do Not Disturb" permission
     private void showPermissionDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("הרשאת 'נא לא להפריע'")
-                .setMessage("כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות 'נא לא להפריע'.")
-                .setPositiveButton("לאפשר", (d, w) -> startActivity(
+                .setTitle(R.string.dnd_permission_title)
+                .setMessage(R.string.dnd_permission_message)
+                .setPositiveButton(R.string.permission_allow, (d, w) -> startActivity(
                         new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)))
-                .setNegativeButton("בטל", null)
+                .setNegativeButton(R.string.permission_cancel, null)
                 .show();
     }
 
     // Show dialog guiding user to grant background location access
     private void showLocationPermissionDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("דרושה הרשאת מיקום ברקע")
-                .setMessage("כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר 'גישה למיקום תמיד'.")
-                .setPositiveButton("פתח הגדרות", (d, w) -> {
+                .setTitle(R.string.location_permission_title)
+                .setMessage(R.string.location_permission_message)
+                .setPositiveButton(R.string.open_settings, (d, w) -> {
                     Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    intent.setData(android.net.Uri.parse(R.string.package_word + getPackageName()));
                     startActivity(intent);
                 })
-                .setNegativeButton("ביטול", null)
+                .setNegativeButton(R.string.exit_dialog_cancel, null)
                 .show();
     }
 

@@ -2,7 +2,7 @@ package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log; // <-- הוספת ייבוא Log
+import android.util.Log;
 import android.widget.CompoundButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -40,13 +40,13 @@ public class SettingsActivity extends AppCompatActivity {
         // Listener for push notification switch changes
         pushSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             prefs.edit().putBoolean(KEY_PUSH_ENABLED, isChecked).apply();
-            Log.d(TAG, "Push notifications " + (isChecked ? "enabled" : "disabled"));
+            Log.d(TAG, getString(isChecked ? R.string.log_push_enabled : R.string.log_push_disabled));
         });
 
         // Listener for app active status switch changes
         appActiveSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             prefs.edit().putBoolean(KEY_APP_ACTIVE, isChecked).apply();
-            Log.d(TAG, "App active: " + isChecked);
+            Log.d(TAG, getString(R.string.log_app_active, String.valueOf(isChecked)));
         });
     }
 }
