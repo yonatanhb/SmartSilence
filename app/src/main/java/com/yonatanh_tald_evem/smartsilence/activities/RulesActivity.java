@@ -154,6 +154,14 @@ public class RulesActivity extends AppCompatActivity {
                                             rules.remove(safePos);
                                             notifyItemRemoved(safePos);
                                             Log.d("SmartSilence", getString(R.string.rule_deleted_log, ruleToDelete.getRuleName()));
+
+                                            holder.itemView.getContext().startService(
+                                                    new Intent(holder.itemView.getContext(), com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class)
+                                            );
+                                            androidx.core.content.ContextCompat.startForegroundService(
+                                                    holder.itemView.getContext(),
+                                                    new Intent(holder.itemView.getContext(), com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class)
+                                            );
                                         }
                                     } else {
                                         Toast.makeText(holder.itemView.getContext(), holder.itemView.getContext().getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();

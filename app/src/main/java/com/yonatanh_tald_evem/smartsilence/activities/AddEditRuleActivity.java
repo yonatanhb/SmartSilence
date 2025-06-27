@@ -5,6 +5,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -429,6 +430,13 @@ public class AddEditRuleActivity extends AppCompatActivity {
             boolean updated = dbHelper.updateRuleById(rule);
             if (updated) {
                 Toast.makeText(this, R.string.rule_updated_success, Toast.LENGTH_SHORT).show();
+
+                startService(new Intent(this, com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class));
+                androidx.core.content.ContextCompat.startForegroundService(
+                        this,
+                        new Intent(this, com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class)
+                );
+
                 setResult(RESULT_OK);
                 finish();
             } else {

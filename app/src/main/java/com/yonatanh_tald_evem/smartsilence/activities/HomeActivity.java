@@ -195,6 +195,8 @@ public class HomeActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
                 displayCurrentRingerMode();
+                displayNextScheduledRule();
+                displayCurrentlyActiveRules();
             }
         }
     };
@@ -382,8 +384,4 @@ public class HomeActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.exit_dialog_cancel, null)
                 .show();
     }
-
-
-
-
 }
