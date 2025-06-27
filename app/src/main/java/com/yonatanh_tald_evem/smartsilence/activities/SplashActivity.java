@@ -5,10 +5,7 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -19,10 +16,10 @@ import androidx.cardview.widget.CardView;
 import com.yonatanh_tald_evem.smartsilence.R;
 
 public class SplashActivity extends AppCompatActivity {
-
     private static final long SPLASH_DURATION_MS = 3000;
     private static final long ANIMATION_DELAY = 300;
 
+    // UI elements
     private CardView logoContainer;
     private LinearLayout teamContainer;
     private CardView dateContainer;
@@ -34,10 +31,12 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        // Initialize views and set their initial states
         initViews();
+
+        // Start sequential animations
         startAnimations();
 
-        // מעבר למסך הבא אחרי זמן המתנה
         new Handler().postDelayed(() -> {
             startActivity(new Intent(this, HomeActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -52,13 +51,11 @@ public class SplashActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         logo = findViewById(R.id.logo);
 
-        // הגדרת שקיפות התחלתית לאנימציות
         logoContainer.setAlpha(0f);
         teamContainer.setAlpha(0f);
         dateContainer.setAlpha(0f);
         progressBar.setAlpha(0f);
 
-        // הגדרת מיקום התחלתי לאנימציות
         logoContainer.setTranslationY(-200f);
         teamContainer.setTranslationY(100f);
         dateContainer.setTranslationY(100f);
@@ -66,16 +63,12 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startAnimations() {
-        // אנימציית הלוגו
         animateLogo();
 
-        // אנימציית מידע הצוות
         new Handler().postDelayed(this::animateTeamInfo, ANIMATION_DELAY);
 
-        // אנימציית התאריך
         new Handler().postDelayed(this::animateDate, ANIMATION_DELAY * 2);
 
-        // אנימציית הפרוגרס בר
         new Handler().postDelayed(this::animateProgressBar, ANIMATION_DELAY * 3);
     }
 

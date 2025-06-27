@@ -304,7 +304,7 @@ public class HomeActivity extends AppCompatActivity {
             weekDaysView.setDaysMask(nextRule.getDaysMask());
             nextRuleId = nextRule.getId();
         } else {
-            nextRuleTextView.setText(R.string.next_rule_format);
+            nextRuleTextView.setText(R.string.no_next_rule);
             editRuleButton.setVisibility(View.GONE);
             weekDaysView.setVisibility(View.GONE);
             nextRuleId = -1;

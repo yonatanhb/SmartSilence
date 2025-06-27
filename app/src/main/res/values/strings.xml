@@ -46,23 +46,23 @@
     <string name="location_not_set">לא מוגדר</string>
     <string name="location">מיקום:</string>
     <string name="no_active_rules">אין חוקים פעילים כעת.</string>
-    <string name="next_rule_format">הכלל הקרוב הבא: %1$s - %2$s</string>
+    <string name="next_rule_format">%1$s - %2$s</string>
     <string name="no_next_rule">אין כלל זמן מתוזמן בקרוב</string>
     <string name="about_dialog_title">אודות האפליקציה</string>
     <string name="about_dialog_message">
-        שם האפליקציה: %1$s&#10;מזהה האפליקציה: %2$s&#10;מערכת הפעלה: %3$s&#10;&#10;פותח על ידי: %4$s&#10;תאריך הגשה: %5$s
+        שם האפליקציה: %1$s\nמזהה האפליקציה: %2$s\nמערכת הפעלה: %3$s\n\nפותח על ידי: %4$s\nתאריך הגשה: %5$s
     </string>
     <string name="about_dialog_close">סגור</string>
     <string name="exit_dialog_title">יציאה מהאפליקציה</string>
     <string name="exit_dialog_message">האם אתה בטוח שברצונך לצאת מהאפליקציה?</string>
     <string name="exit_dialog_confirm">יציאה</string>
     <string name="exit_dialog_cancel">ביטול</string>
-    <string name="dnd_permission_title">הרשאת \'נא לא להפריע\'</string>
-    <string name="dnd_permission_message">כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות \'נא לא להפריע\'.</string>
+    <string name="dnd_permission_title">הרשאת נא לא להפריע</string>
+    <string name="dnd_permission_message">כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות - נא לא להפריע.</string>
     <string name="permission_allow">לאפשר</string>
     <string name="permission_cancel">בטל</string>
     <string name="location_permission_title">דרושה הרשאת מיקום ברקע</string>
-    <string name="location_permission_message">כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר \'גישה למיקום תמיד'\.</string>
+    <string name="location_permission_message">כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר גישה למיקום תמיד.</string>
     <string name="open_settings">פתח הגדרות</string>
     <string name="package_word">package:</string>
     <string name="developers">יונתן חבה, טל דניאל, איב בן ישעיה</string>
