@@ -15,4 +15,18 @@
 
     <string name="active_rules_title">חוקים פעילים כעת:\n%1$s</string>
 
+    <!-- Splash Screen Strings -->
+    <string name="app_logo">לוגו האפליקציה</string>
+    <string name="team_members">חברי הצוות</string>
+    <string name="tal_daniel">טל דניאל</string>
+    <string name="yonatan_hava">יונתן חבה</string>
+    <string name="ev_ben_yeshaya">איב בן ישעיה</string>
+    <string name="submission_date">תאריך הגשה: 29/06/2025</string>
+    <string name="loading">טוען...</string>
+
+    <!-- ID Numbers -->
+    <string name="tal_id">211318308</string>
+    <string name="yonatan_id">209309327</string>
+    <string name="ev_id">212010359</string>
+
 </resources>
