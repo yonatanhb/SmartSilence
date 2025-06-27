@@ -57,4 +57,10 @@
     <color name="radio_unselected">#F5F5F5</color>
     <color name="radio_border_selected">#4CAF50</color>
     <color name="radio_border_unselected">#E0E0E0</color>
+
+    <color name="rule_item_background">#F8F9FA</color>
+    <color name="rule_item_border">#E9ECEF</color>
+    <color name="time_rule_color">#4CAF50</color>
+    <color name="location_rule_color">#2196F3</color>
+    <color name="active_indicator_color">#FF4444</color>
 </resources>

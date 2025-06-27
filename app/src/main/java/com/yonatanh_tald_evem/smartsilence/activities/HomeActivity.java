@@ -8,14 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -56,6 +60,14 @@ public class HomeActivity extends AppCompatActivity {
     private final boolean needBackgroundLocation =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 
+    private TextView activeRulesCountTextView;
+    private LinearLayout activeRulesContainer;
+    private LinearLayout noActiveRulesLayout;
+
+    private BroadcastReceiver activeRulesChangedReceiver;
+    private boolean activeRulesChangedReceiverRegistered = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +79,9 @@ public class HomeActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primary_color));
 
         // Initialize UI components
-        activeRulesTextView = findViewById(R.id.activeRulesTextView);
+        activeRulesCountTextView = findViewById(R.id.activeRulesCountTextView);
+        activeRulesContainer = findViewById(R.id.activeRulesContainer);
+        noActiveRulesLayout = findViewById(R.id.noActiveRulesLayout);
         ringerStatusTextView = findViewById(R.id.ringerStatusTextView);
         nextRuleTextView     = findViewById(R.id.nextRuleTextView);
         ringerStatusIcon     = findViewById(R.id.ringerStatusIcon);
@@ -110,10 +124,24 @@ public class HomeActivity extends AppCompatActivity {
             ringerModeReceiverRegistered = true;
         }
 
+        // --- קליטה לשידור שינוי חוקים פעילים ---
+        if (!activeRulesChangedReceiverRegistered) {
+            IntentFilter filter = new IntentFilter("com.yonatanh_tald_evem.smartsilence.ACTION_ACTIVE_RULES_CHANGED");
+            activeRulesChangedReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    displayCurrentlyActiveRules();
+                }
+            };
+            registerReceiver(activeRulesChangedReceiver, filter);
+            activeRulesChangedReceiverRegistered = true;
+        }
+
         displayCurrentRingerMode();
         displayNextScheduledRule();
         displayCurrentlyActiveRules();
     }
+
 
     // Pause lifecycle: unregister broadcast receiver
     @Override
@@ -123,7 +151,13 @@ public class HomeActivity extends AppCompatActivity {
             unregisterReceiver(ringerModeReceiver);
             ringerModeReceiverRegistered = false;
         }
+        // ביטול הרשמה ל־activeRulesChangedReceiver
+        if (activeRulesChangedReceiverRegistered && activeRulesChangedReceiver != null) {
+            unregisterReceiver(activeRulesChangedReceiver);
+            activeRulesChangedReceiverRegistered = false;
+        }
     }
+
 
     // Inflate menu (About, Settings, Exit)
     @Override
@@ -256,36 +290,124 @@ public class HomeActivity extends AppCompatActivity {
 
     // Display list of currently active rules (time or location-based)
     private void displayCurrentlyActiveRules() {
-        StringBuilder activeRulesText = new StringBuilder();
         List<RuleModel> activeRules = dbHelper.getCurrentlyActiveRules();
 
-        for (RuleModel rule : activeRules) {
-            String name = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
-                    ? rule.getRuleName()
-                    : getString(rule.getType().equals("time") ? R.string.unnamed_time_rule : R.string.unnamed_location_rule);
+        activeRulesCountTextView.setText(String.valueOf(activeRules.size()));
+        activeRulesContainer.removeAllViews();
 
-            if ("time".equals(rule.getType())) {
-                activeRulesText.append("• ")
-                        .append(name)
-                        .append(" (")
-                        .append(rule.getTimeStart()).append(" - ").append(rule.getTimeEnd()).append(")\n");
-            } else if ("location".equals(rule.getType())) {
-                activeRulesText.append("• ")
-                        .append(name)
-                        .append(" (")
-                        .append(R.string.location)
-                        .append(" ")
-                        .append(rule.getLocationName() != null ? rule.getLocationName() : R.string.location_not_set)
-                        .append(")\n");
+        if (activeRules.isEmpty()) {
+            // הצגת הודעת "אין חוקים פעילים"
+            noActiveRulesLayout.setVisibility(View.VISIBLE);
+            // activeRulesContainer.addView(noActiveRulesLayout); // למחוק שורה זו
+        } else {
+            noActiveRulesLayout.setVisibility(View.GONE);
+
+            for (RuleModel rule : activeRules) {
+                View ruleItemView = createActiveRuleItemView(rule);
+                activeRulesContainer.addView(ruleItemView);
             }
         }
+    }
 
-        if (activeRulesText.length() > 0) {
-            String activeText = activeRulesText.toString().trim();
-            activeRulesTextView.setText(getString(R.string.active_rules_title, activeText));
-        } else {
-            activeRulesTextView.setText(R.string.no_active_rules);
+
+    private View createActiveRuleItemView(RuleModel rule) {
+        // קונטיינר חיצוני (שורה)
+        LinearLayout ruleContainer = new LinearLayout(this);
+        LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        containerParams.setMargins(0, 0, 0, dpToPx(12));
+        ruleContainer.setLayoutParams(containerParams);
+        ruleContainer.setOrientation(LinearLayout.HORIZONTAL);
+        ruleContainer.setGravity(Gravity.CENTER_VERTICAL);
+        ruleContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_active_rule_item));
+        ruleContainer.setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12));
+
+        // *** אייקון סוג החוק - בצד שמאל ***
+        ImageView ruleIcon = new ImageView(this);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dpToPx(32), dpToPx(32));
+        iconParams.setMarginEnd(dpToPx(12));
+        ruleIcon.setLayoutParams(iconParams);
+
+        if ("time".equals(rule.getType())) {
+            ruleIcon.setImageResource(R.drawable.ic_schedule);
+            ruleIcon.setColorFilter(ContextCompat.getColor(this, R.color.time_rule_color));
+        } else if ("location".equals(rule.getType())) {
+            ruleIcon.setImageResource(R.drawable.ic_location_on);
+            ruleIcon.setColorFilter(ContextCompat.getColor(this, R.color.location_rule_color));
         }
+
+        // *** קונטיינר לטקסטים (שם למעלה, פרטים מתחת) ***
+        LinearLayout textContainer = new LinearLayout(this);
+        LinearLayout.LayoutParams textContainerParams = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
+        );
+        textContainer.setLayoutParams(textContainerParams);
+        textContainer.setOrientation(LinearLayout.VERTICAL);
+        textContainer.setGravity(Gravity.END); // יישור לימין
+
+        // שם החוק (למעלה)
+        TextView ruleNameText = new TextView(this);
+        ruleNameText.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        String ruleName = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
+                ? rule.getRuleName()
+                : getString(rule.getType().equals("time") ? R.string.unnamed_time_rule : R.string.unnamed_location_rule);
+        ruleNameText.setText(ruleName);
+        ruleNameText.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        ruleNameText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        ruleNameText.setTypeface(null, Typeface.BOLD);
+        ruleNameText.setGravity(Gravity.END);
+
+        // פרטי החוק (מתחת לשם)
+        TextView ruleDetailsText = new TextView(this);
+        LinearLayout.LayoutParams detailsParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        detailsParams.setMargins(0, dpToPx(4), 0, 0);
+        ruleDetailsText.setLayoutParams(detailsParams);
+
+        String ruleDetails;
+        if ("time".equals(rule.getType())) {
+            ruleDetails = getString(R.string.time_range_format, rule.getTimeStart(), rule.getTimeEnd());
+        } else {
+            String locationName = rule.getLocationName() != null ?
+                    rule.getLocationName() : getString(R.string.location_not_set);
+            ruleDetails = getString(R.string.location_format, locationName);
+        }
+
+        ruleDetailsText.setText(ruleDetails);
+        ruleDetailsText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        ruleDetailsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        ruleDetailsText.setGravity(Gravity.END);
+
+        // הוספת הטקסטים לקונטיינר
+        textContainer.addView(ruleNameText);
+        textContainer.addView(ruleDetailsText);
+
+        // סדר: קודם קונטיינר טקסט, אחריו אייקון בצד שמאל
+        ruleContainer.addView(textContainer);
+        ruleContainer.addView(ruleIcon);
+
+        // אנימציה
+        ruleContainer.setAlpha(0f);
+        ruleContainer.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .setStartDelay(100)
+                .start();
+
+        return ruleContainer;
+    }
+
+
+    // פונקציית עזר להמרת dp לפיקסלים
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
     // Display the next scheduled time-based rule

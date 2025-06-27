@@ -36,6 +36,12 @@ public class RuleStateManager {
         if (audioManager.getRingerMode() != wantedMode) {
             audioManager.setRingerMode(wantedMode);
             NotificationHelper.showRingerModeChanged(context, wantedMode);
+
+            // ---- שידור עדכון לרשימת החוקים הפעילים ----
+            context.sendBroadcast(new android.content.Intent(
+                    "com.yonatanh_tald_evem.smartsilence.ACTION_ACTIVE_RULES_CHANGED"
+            ));
         }
     }
 }
+
