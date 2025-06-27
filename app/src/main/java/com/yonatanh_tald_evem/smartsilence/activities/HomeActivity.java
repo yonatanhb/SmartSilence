@@ -231,18 +231,18 @@ public class HomeActivity extends AppCompatActivity {
 
         switch (mode) {
             case AudioManager.RINGER_MODE_SILENT:
-                status = "מצב שקט";
+                status = getString(R.string.ringer_mode_silent);
                 iconRes = R.drawable.ic_volume_off;
                 colorRes = R.color.ringer_silent;
                 break;
             case AudioManager.RINGER_MODE_VIBRATE:
-                status = "רטט בלבד";
+                status = getString(R.string.ringer_mode_vibrate);
                 iconRes = R.drawable.ic_vibrate;
                 colorRes = R.color.ringer_vibrate;
                 break;
             case AudioManager.RINGER_MODE_NORMAL:
             default:
-                status = "מצב רגיל";
+                status = getString(R.string.ringer_mode_normal);
                 iconRes = R.drawable.ic_volume_up;
                 colorRes = R.color.ringer_normal;
                 break;
@@ -262,7 +262,7 @@ public class HomeActivity extends AppCompatActivity {
         for (RuleModel rule : activeRules) {
             String name = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
                     ? rule.getRuleName()
-                    : (rule.getType().equals("time") ? "כלל זמן ללא שם" : "כלל מיקום ללא שם");
+                    : getString(rule.getType().equals("time") ? R.string.unnamed_time_rule : R.string.unnamed_location_rule);
 
             if ("time".equals(rule.getType())) {
                 activeRulesText.append("• ")
@@ -272,8 +272,10 @@ public class HomeActivity extends AppCompatActivity {
             } else if ("location".equals(rule.getType())) {
                 activeRulesText.append("• ")
                         .append(name)
-                        .append(" (מיקום: ")
-                        .append(rule.getLocationName() != null ? rule.getLocationName() : "לא מוגדר")
+                        .append(" (")
+                        .append(R.string.location)
+                        .append(" ")
+                        .append(rule.getLocationName() != null ? rule.getLocationName() : R.string.location_not_set)
                         .append(")\n");
             }
         }
@@ -282,7 +284,7 @@ public class HomeActivity extends AppCompatActivity {
             String activeText = activeRulesText.toString().trim();
             activeRulesTextView.setText(getString(R.string.active_rules_title, activeText));
         } else {
-            activeRulesTextView.setText("אין חוקים פעילים כעת.");
+            activeRulesTextView.setText(R.string.no_active_rules);
         }
     }
 
