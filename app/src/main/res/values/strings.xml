@@ -24,6 +24,9 @@
     <string name="submission_date">תאריך הגשה: 29/06/2025</string>
     <string name="loading">טוען...</string>
 
+    <string name="person_icon_desc">User profile icon</string>
+    <string name="calendar_icon_desc">Calendar icon</string>
+
     <!-- ID Numbers -->
     <string name="tal_id">211318308</string>
     <string name="yonatan_id">209309327</string>
@@ -155,5 +158,11 @@
     <string name="log_rule_time_parse_error">שגיאה בפענוח זמן החוק: %1$s</string>
     <string name="time_range_format">%1$s - %2$s</string>
     <string name="location_format">מיקום: %1$s</string>
+
+    <!-- Home Menu xml -->
+    <string name="menu_about">אודות</string>
+    <string name="menu_settings">הגדרות</string>
+    <string name="menu_exit">יציאה</string>
+
 
 </resources>

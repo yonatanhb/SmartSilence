@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- עיצוב צבעים לחווית משתמש מודרנית -->
     <color name="primary_color">#3949AB</color>
     <color name="primary_dark_color">#303F9F</color>
     <color name="accent_color">#FF5722</color>
@@ -14,12 +13,10 @@
 
     <color name="divider_color">#EEEEEE</color>
 
-    <!-- צבעים למצבים שונים של הצלצול -->
     <color name="ringer_normal">#4CAF50</color>
     <color name="ringer_vibrate">#FF9800</color>
     <color name="ringer_silent">#F44336</color>
 
-    <!-- צבע רקע לימים פעילים -->
     <color name="accent_color_light">#FFEBEE</color>
     <color name="white">#FFFFFF</color>
 

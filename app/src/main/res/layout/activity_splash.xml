@@ -85,7 +85,8 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_person"
-                android:tint="@color/primary_color" />
+                app:tint="@color/primary_color"
+                android:contentDescription="@string/person_icon_desc" />
 
             <TextView
                 android:layout_width="0dp"
@@ -123,7 +124,8 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_person"
-                app:tint="@color/primary_color" />
+                app:tint="@color/primary_color"
+                android:contentDescription="@string/person_icon_desc" />
 
             <TextView
                 android:layout_width="0dp"
@@ -160,7 +162,8 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_person"
-                android:tint="@color/primary_color" />
+                app:tint="@color/primary_color"
+                android:contentDescription="@string/person_icon_desc" />
 
             <TextView
                 android:layout_width="0dp"
@@ -204,7 +207,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="16dp"
+            tools:ignore="UseCompoundDrawables">
 
 
             <ImageView
@@ -212,7 +216,8 @@
                 android:layout_height="20dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_calendar"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:contentDescription="@string/calendar_icon_desc" />
 
             <TextView
                 android:layout_width="wrap_content"
