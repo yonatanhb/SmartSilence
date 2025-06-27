@@ -157,4 +157,10 @@
     <string name="log_rule_delete_not_found">לא נמצא חוק למחיקה עם ID: %1$d</string>
     <string name="log_rule_time_parse_error">שגיאה בפענוח זמן החוק: %1$s</string>
 
+    <!-- Home Menu xml -->
+    <string name="menu_about">אודות</string>
+    <string name="menu_settings">הגדרות</string>
+    <string name="menu_exit">יציאה</string>
+
+
 </resources>
