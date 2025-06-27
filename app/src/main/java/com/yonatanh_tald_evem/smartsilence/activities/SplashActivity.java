@@ -34,9 +34,6 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // הסתרת Status Bar לחוויה מלאה
-        hideSystemUI();
-
         initViews();
         startAnimations();
 
@@ -94,13 +91,6 @@ public class SplashActivity extends AppCompatActivity {
         logoAnimSet.setDuration(800);
         logoAnimSet.setInterpolator(new AccelerateDecelerateInterpolator());
         logoAnimSet.start();
-
-        // אנימציית סיבוב עדינה של הלוגו
-        ObjectAnimator logoRotation = ObjectAnimator.ofFloat(logo, "rotation", 0f, 360f);
-        logoRotation.setDuration(2000);
-        logoRotation.setRepeatCount(ObjectAnimator.INFINITE);
-        logoRotation.setRepeatMode(ObjectAnimator.RESTART);
-        logoRotation.start();
     }
 
     private void animateTeamInfo() {
@@ -139,21 +129,5 @@ public class SplashActivity extends AppCompatActivity {
         progressAnimSet.setDuration(400);
         progressAnimSet.setInterpolator(new AccelerateDecelerateInterpolator());
         progressAnimSet.start();
-    }
-
-    private void hideSystemUI() {
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        decorView.setSystemUiVisibility(uiOptions);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUI();
-        }
     }
 }
