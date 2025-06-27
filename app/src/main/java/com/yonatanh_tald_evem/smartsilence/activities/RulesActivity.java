@@ -40,28 +40,30 @@ public class RulesActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rulesRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Load rules from DB in background thread
         new Thread(() -> {
             List<RuleModel> rules = dbHelper.getAllRules();
 
-            // עדכן את ה־UI מה־main thread
+            // Update UI on the main thread
             runOnUiThread(() -> {
                 adapter = new RulesAdapter(rules);
                 recyclerView.setAdapter(adapter);
             });
         }).start();
 
+        // Button to add a new rule
         FloatingActionButton addBtn = findViewById(R.id.addRuleButton);
-        addBtn.setOnClickListener(v -> {
-            startActivity(new Intent(RulesActivity.this, AddEditRuleActivity.class));
-        });
+        addBtn.setOnClickListener(v -> startActivity(new Intent(RulesActivity.this, AddEditRuleActivity.class)));
     }
 
+    // Reload rules every time the activity is resumed
     @Override
     protected void onResume() {
         super.onResume();
         loadRules();
     }
 
+    // Loads all rules from the DB and updates the adapter
     private void loadRules() {
         new Thread(() -> {
             List<RuleModel> rules = dbHelper.getAllRules();
@@ -79,7 +81,7 @@ public class RulesActivity extends AppCompatActivity {
         }).start();
     }
 
-
+    // Adapter class to manage RecyclerView list of rules
     class RulesAdapter extends RecyclerView.Adapter<RulesAdapter.RuleViewHolder> {
 
         public final List<RuleModel> rules;
@@ -99,11 +101,11 @@ public class RulesActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull RuleViewHolder holder, int position) {
             RuleModel rule = rules.get(position);
 
-            // שם החוק
+            // Set rule name
             String name = rule.getRuleName() != null ? rule.getRuleName() : "(ללא שם)";
             holder.ruleText.setText(name);
 
-            // תיאור לפי סוג החוק
+            // Show rule details depending on type
             String details;
             if ("time".equals(rule.getType())) {
                 details = "זמן: " + rule.getTimeStart() + "–" + rule.getTimeEnd();
@@ -112,10 +114,11 @@ public class RulesActivity extends AppCompatActivity {
             }
             holder.ruleDetails.setText(details);
 
+            // Show active days
             String daysText = dbHelper.getDaysString(rule.getDaysMask());
             holder.ruleDays.setText(daysText);
 
-            // לחצן מחיקה
+            // Delete rule button
             holder.deleteBtn.setOnClickListener(v -> {
                 int currentPosition = holder.getAdapterPosition();
                 if (currentPosition == RecyclerView.NO_POSITION) {
@@ -130,17 +133,17 @@ public class RulesActivity extends AppCompatActivity {
                         .setMessage("האם למחוק את החוק \"" + ruleToDelete.getRuleName() + "\"?")
                         .setPositiveButton("מחק", (dialog, which) -> {
 
-                            // הצגת דיאלוג עם ProgressBar
                             View dialogView = LayoutInflater.from(holder.itemView.getContext())
                                     .inflate(R.layout.dialog_loading, null);
 
+                            // Show loading dialog with progress
                             AlertDialog loadingDialog = new AlertDialog.Builder(holder.itemView.getContext())
                                     .setView(dialogView)
                                     .setCancelable(false)
                                     .create();
                             loadingDialog.show();
 
-                            // דחיית מחיקה עם סימולציה של זמן פעולה
+                            // Simulate delete delay
                             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                                 try {
                                     boolean deleted = dbHelper.deleteRuleById(ruleToDelete.getId());
@@ -167,22 +170,20 @@ public class RulesActivity extends AppCompatActivity {
                         .show();
             });
 
+            // Edit rule button
             holder.editBtn.setOnClickListener(v -> {
                 Intent intent = new Intent(holder.itemView.getContext(), AddEditRuleActivity.class);
                 intent.putExtra("ruleId", rule.getId());
                 holder.itemView.getContext().startActivity(intent);
             });
-
-
-
         }
-
 
         @Override
         public int getItemCount() {
             return rules.size();
         }
 
+        // ViewHolder for each rule item
         class RuleViewHolder extends RecyclerView.ViewHolder {
             TextView ruleText, ruleDetails, ruleDays;
             ImageButton editBtn, deleteBtn;

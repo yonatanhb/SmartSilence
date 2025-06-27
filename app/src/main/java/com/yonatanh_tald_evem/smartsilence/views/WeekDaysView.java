@@ -13,6 +13,7 @@ import com.yonatanh_tald_evem.smartsilence.R;
 import java.util.ArrayList;
 import java.util.List;
 
+// Custom view that displays days of the week in Hebrew (א–ש) as selectable circles
 public class WeekDaysView extends LinearLayout {
     private static final String[] HEB_DAYS = {"א","ב","ג","ד","ה","ו","ש"};
     private final List<TextView> dayViews = new ArrayList<>(7);

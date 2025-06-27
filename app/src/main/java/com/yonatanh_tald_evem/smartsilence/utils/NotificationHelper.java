@@ -15,15 +15,18 @@ import com.yonatanh_tald_evem.smartsilence.R;
 import com.yonatanh_tald_evem.smartsilence.activities.HomeActivity;
 
 public class NotificationHelper {
-
+    //Shows a notification to inform the user that the ringer mode has changed.
     public static void showRingerModeChanged(Context context, int ringerMode) {
         String channelId = context.getString(R.string.notification_channel_id);
+
+        // Create the notification channel
         createNotificationChannel(context, channelId);
 
         String title = context.getString(R.string.notification_title);
         String message;
         int iconRes = R.drawable.ic_notification_icon;
 
+        // Set the message according to the ringer mode
         switch (ringerMode) {
             case android.media.AudioManager.RINGER_MODE_SILENT:
                 message = context.getString(R.string.notification_silence);
@@ -37,6 +40,7 @@ public class NotificationHelper {
                 break;
         }
 
+        // Create an intent to open HomeActivity when the user taps the notification
         Intent intent = new Intent(context, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -44,6 +48,7 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
+        // Build the actual notification
         Notification notification = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(iconRes)
                 .setContentTitle(title)
@@ -53,26 +58,32 @@ public class NotificationHelper {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
 
+        // Show the notification
         NotificationManager manager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1001, notification);
         Log.d("SmartSilence", "Notification sent: " + message);
     }
 
+    //Creates a notification channel
     private static void createNotificationChannel(Context context, String channelId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelName = context.getString(R.string.notification_channel_name);
             String channelDesc = context.getString(R.string.notification_channel_desc);
+
+            // Create the channel with high importance and allow bypassing Do Not Disturb
             NotificationChannel channel = new NotificationChannel(
                     channelId, channelName, NotificationManager.IMPORTANCE_HIGH
             );
             channel.setDescription(channelDesc);
             channel.setBypassDnd(true);
+
+            // Register the channel with the system
             NotificationManager manager = (NotificationManager)
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.createNotificationChannel(channel);
+
             Log.d("SmartSilence", "Notification channel '" + channelName + "' created (id: " + channelId + ") [Bypass DND]");
         }
     }
-
 }

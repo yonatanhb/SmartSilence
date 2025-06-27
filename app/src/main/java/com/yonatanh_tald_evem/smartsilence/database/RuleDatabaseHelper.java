@@ -9,17 +9,16 @@ import android.util.Log;
 
 import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class RuleDatabaseHelper extends SQLiteOpenHelper {
-
+    // Database configuration
     public static final String DATABASE_NAME    = "smart_silence.db";
     public static final int    DATABASE_VERSION = 4;
 
+    // Table and column names
     public static final String TABLE_RULES      = "rules";
     public static final String COLUMN_ID        = "id";
     public static final String COLUMN_TYPE      = "type";
@@ -34,6 +33,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DAYS_MASK = "daysMask";
     public static final String COLUMN_NOW_ACTIVE = "nowActive";
 
+    // SQL to create the rules table
     private static final String CREATE_TABLE_RULES =
             "CREATE TABLE " + TABLE_RULES + " (" +
                     COLUMN_ID         + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -54,11 +54,13 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    // Called only when the DB is first created
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_RULES);
     }
 
+    // Called when upgrading DB version (drop and recreate table)
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // פשוט מוחק ובונה מחדש, כי הנתונים הישנים לא רלוונטיים
@@ -66,82 +68,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /** מחזיר את כל חוקי הזמן הפעילים */
-    public List<RuleModel> getActiveTimeRules() {
-        List<RuleModel> rules = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-
-        Cursor cursor = db.query(
-                TABLE_RULES,
-                null,
-                COLUMN_TYPE + "=? AND " + COLUMN_ACTIVE + "=?",
-                new String[]{"time", "1"},
-                null, null, null
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                RuleModel rule = new RuleModel();
-                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
-                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
-                rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
-                rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
-                rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
-                rules.add(rule);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return rules;
-    }
-
-    /** מחזיר את כל חוקי המיקום הפעילים */
-    public List<RuleModel> getActiveLocationRules() {
-        List<RuleModel> rules = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-
-        // שאילתה ששולפת רק חוקי מיקום פעילים
-        Cursor cursor = db.query(
-                TABLE_RULES,
-                null,
-                COLUMN_TYPE + "=? AND " + COLUMN_ACTIVE + "=?",
-                new String[]{"location", "1"},
-                null, null, null
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                RuleModel rule = new RuleModel();
-                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
-                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
-                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
-                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
-                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
-                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
-                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
-                rules.add(rule);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return rules;
-    }
-
-    /** מוסיף כלל לדוגמה (רק היום, עוד דקה עד 10 דקות) */
-    public void insertTestTimeRule() {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(COLUMN_TYPE, "time");
-        values.put(COLUMN_RULE_NAME, "example");
-        values.put(COLUMN_ACTIVE, 1);
-        values.put(COLUMN_TIME_START, getTimePlusMinutes(2));
-        values.put(COLUMN_TIME_END, getTimePlusMinutes(10));
-        values.put(COLUMN_DAYS_MASK, 0b01111111);
-
-        db.insert(TABLE_RULES, null, values);
-    }
-
+    // Inserts a user-defined time-based rule
     public void insertManualTimeRule(RuleModel rule) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -153,7 +80,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TIME_END, rule.getTimeEnd());
         values.put(COLUMN_DAYS_MASK, rule.getDaysMask());
 
-        // לא רלוונטי לחוקי זמן – נכניס null
+        // Set irrelevant location fields to null
         values.putNull(COLUMN_LOCATION_NAME);
         values.putNull(COLUMN_LATITUDE);
         values.putNull(COLUMN_LONGITUDE);
@@ -162,74 +89,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_RULES, null, values);
     }
 
-    /** מחזיר חוק ספציפי לפי ID */
-    public RuleModel getRuleById(int id) {
-        SQLiteDatabase db = getReadableDatabase();
-        RuleModel rule = null;
-
-        Cursor cursor = db.query(
-                TABLE_RULES,
-                null, // כל העמודות
-                COLUMN_ID + "=?", // תנאי WHERE
-                new String[]{String.valueOf(id)}, // ערך התנאי
-                null, null, null, "1" // LIMIT 1
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            rule = new RuleModel(); // רק אם מצאנו משהו, ניצור אובייקט
-            rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-            rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
-            rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
-            rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
-            rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
-            rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
-            rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
-            rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
-            rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
-            rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
-            rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
-            cursor.close();
-        }
-
-        db.close();
-        return rule;
-    }
-
-    public boolean updateRuleById(RuleModel rule) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(COLUMN_RULE_NAME, rule.getRuleName());
-        values.put(COLUMN_TYPE, rule.getType());
-        values.put(COLUMN_ACTIVE, rule.isActive() ? 1 : 0);
-
-        if ("time".equals(rule.getType())) {
-            values.put(COLUMN_TIME_START, rule.getTimeStart());
-            values.put(COLUMN_TIME_END, rule.getTimeEnd());
-            values.put(COLUMN_DAYS_MASK, rule.getDaysMask());
-
-            // ערכים ריקים עבור שדות מיקום
-            values.putNull(COLUMN_LOCATION_NAME);
-            values.putNull(COLUMN_LATITUDE);
-            values.putNull(COLUMN_LONGITUDE);
-            values.putNull(COLUMN_RADIUS);
-        } else {
-            values.put(COLUMN_LOCATION_NAME, rule.getLocationName());
-            values.put(COLUMN_LATITUDE, rule.getLatitude());
-            values.put(COLUMN_LONGITUDE, rule.getLongitude());
-            values.put(COLUMN_RADIUS, rule.getRadius());
-
-            // ערכים ריקים עבור שדות זמן
-            values.putNull(COLUMN_TIME_START);
-            values.putNull(COLUMN_TIME_END);
-            values.put(COLUMN_DAYS_MASK, 0);
-        }
-
-        int rows = db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(rule.getId())});
-        return rows > 0;
-    }
-
-
+    // Inserts a location-based rule
     public void insertLocationRule(String ruleName, String locationName, double latitude, double longitude, int radius, boolean active) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -250,60 +110,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_RULES, null, values);
     }
 
-
-    private String getTimePlusMinutes(int minutes) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE, minutes);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        return sdf.format(cal.getTime());
-    }
-
-    /** מחזיר ב-bitmask את היום הנוכחי (0=ראשון ... 6=שבת) */
-    private int getTodayMask() {
-        int idx = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
-        return 1 << idx;
-    }
-
-    /** מדפיס ללוג את כל החוקים כולל daysMask */
-    public void printAllRules() {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_RULES, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                int    id     = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-                String type   = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE));
-                boolean active= cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1;
-                String start  = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START));
-                String end    = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END));
-                int    mask   = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK));
-                String loc    = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME));
-                double lat    = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE));
-                double lon    = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE));
-                int    radius = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS));
-
-                Log.d("SmartSilence", "ID: "        + id);
-                Log.d("SmartSilence", "Type: "      + type);
-                Log.d("SmartSilence", "Active: "    + active);
-                Log.d("SmartSilence", "Time: "      + start + "–" + end);
-                Log.d("SmartSilence", "DaysMask: "  + Integer.toBinaryString(mask));
-                Log.d("SmartSilence", "Location: "  + loc);
-                Log.d("SmartSilence", "Lat/Lon: "   + lat + "/" + lon);
-                Log.d("SmartSilence", "Radius: "    + radius);
-            } while (cursor.moveToNext());
-        } else {
-            Log.d("SmartSilence", "אין חוקים במאגר.");
-        }
-        cursor.close();
-    }
-
-    /** מוחק את כל החוקים */
-    public void deleteAllRules() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_RULES, null, null);
-    }
-
-    /** מחזיר את כל החוקים מכל הסוגים */
+    // Returns all rules (time + location)
     public List<RuleModel> getAllRules() {
         List<RuleModel> rules = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -316,7 +123,7 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
                 null, null, null
         );
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 RuleModel rule = new RuleModel();
                 rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
@@ -338,84 +145,69 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         return rules;
     }
 
-    public String getDaysString(int daysMask) {
-        if (daysMask == 0b01111111) {
-            return "כל יום";
+    // Retrieves a rule by its ID
+    public RuleModel getRuleById(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        RuleModel rule = null;
+
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null,
+                COLUMN_ID + "=?",
+                new String[]{String.valueOf(id)},
+                null, null, null, "1"
+        );
+
+        if (cursor.moveToFirst()) {
+            rule = new RuleModel();
+            rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+            rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+            rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+            rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+            rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
+            rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
+            rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
+            rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+            rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+            rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+            rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+            cursor.close();
         }
 
-        String[] days = {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"};
-        StringBuilder result = new StringBuilder();
-
-        for (int i = 0; i < 7; i++) {
-            if ((daysMask & (1 << i)) != 0) {
-                if (result.length() > 0) result.append(", ");
-                result.append(days[i]);
-            }
-        }
-
-        return result.toString();
+        db.close();
+        return rule;
     }
 
-    /** מוחק חוק לפי מזהה עם לוגים */
-    public boolean deleteRuleById(int id) {
-        SQLiteDatabase db = getWritableDatabase();
-        Log.d("SmartSilence", "מנסה למחוק חוק עם ID: " + id);
-
-        int rowsAffected = db.delete(TABLE_RULES, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
-
-        if (rowsAffected > 0) {
-            Log.d("SmartSilence", "החוק נמחק בהצלחה. rowsAffected = " + rowsAffected);
-            return true;
-        } else {
-            Log.w("SmartSilence", "לא נמצא חוק למחיקה עם ID: " + id);
-            return false;
-        }
-    }
-
-    public void updateNowActiveStatus(int ruleId, boolean nowActive) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_NOW_ACTIVE, nowActive ? 1 : 0);
-        db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(ruleId)});
-    }
-
-    /** מחזיר את כל החוקים שכרגע פעילים בפועל (nowActive = 1) */
-    public List<RuleModel> getCurrentlyActiveRules() {
+    // Returns all active time-based rules
+    public List<RuleModel> getActiveTimeRules() {
         List<RuleModel> rules = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.query(
                 TABLE_RULES,
                 null,
-                COLUMN_NOW_ACTIVE + "=?",
-                new String[]{"1"},
+                COLUMN_TYPE + "=? AND " + COLUMN_ACTIVE + "=?",
+                new String[]{"time", "1"},
                 null, null, null
         );
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 RuleModel rule = new RuleModel();
                 rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
                 rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
                 rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
                 rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
                 rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
                 rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
-                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
-                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
-                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
-                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
-                rule.setNowActive(true);
                 rules.add(rule);
             } while (cursor.moveToNext());
             cursor.close();
         }
-
         return rules;
     }
 
-    /** מחזיר את החוק המתוזמן הבא שאינו פעיל כרגע (לפי שעה ויום) */
+    // Returns the next upcoming time-based rule (based on time and day)
     public RuleModel getNextScheduledTimeRule() {
         List<RuleModel> rules = getActiveTimeRules();
         Calendar now = Calendar.getInstance();
@@ -453,4 +245,146 @@ public class RuleDatabaseHelper extends SQLiteOpenHelper {
         return nextRule;
     }
 
+    // Returns all active location-based rules
+    public List<RuleModel> getActiveLocationRules() {
+        List<RuleModel> rules = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null,
+                COLUMN_TYPE + "=? AND " + COLUMN_ACTIVE + "=?",
+                new String[]{"location", "1"},
+                null, null, null
+        );
+
+        if (cursor.moveToFirst()) {
+            do {
+                RuleModel rule = new RuleModel();
+                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+                rules.add(rule);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return rules;
+    }
+
+    // Returns rules that are currently active (nowActive = 1)
+    public List<RuleModel> getCurrentlyActiveRules() {
+        List<RuleModel> rules = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_RULES,
+                null,
+                COLUMN_NOW_ACTIVE + "=?",
+                new String[]{"1"},
+                null, null, null
+        );
+
+        if (cursor.moveToFirst()) {
+            do {
+                RuleModel rule = new RuleModel();
+                rule.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                rule.setRuleName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_RULE_NAME)));
+                rule.setType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE)));
+                rule.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ACTIVE)) == 1);
+                rule.setTimeStart(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_START)));
+                rule.setTimeEnd(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_END)));
+                rule.setDaysMask(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DAYS_MASK)));
+                rule.setLocationName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION_NAME)));
+                rule.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE)));
+                rule.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE)));
+                rule.setRadius(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RADIUS)));
+                rule.setNowActive(true);
+                rules.add(rule);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        return rules;
+    }
+
+    // Updates a rule by ID
+    public boolean updateRuleById(RuleModel rule) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_RULE_NAME, rule.getRuleName());
+        values.put(COLUMN_TYPE, rule.getType());
+        values.put(COLUMN_ACTIVE, rule.isActive() ? 1 : 0);
+
+        if ("time".equals(rule.getType())) {
+            values.put(COLUMN_TIME_START, rule.getTimeStart());
+            values.put(COLUMN_TIME_END, rule.getTimeEnd());
+            values.put(COLUMN_DAYS_MASK, rule.getDaysMask());
+
+            values.putNull(COLUMN_LOCATION_NAME);
+            values.putNull(COLUMN_LATITUDE);
+            values.putNull(COLUMN_LONGITUDE);
+            values.putNull(COLUMN_RADIUS);
+        } else {
+            values.put(COLUMN_LOCATION_NAME, rule.getLocationName());
+            values.put(COLUMN_LATITUDE, rule.getLatitude());
+            values.put(COLUMN_LONGITUDE, rule.getLongitude());
+            values.put(COLUMN_RADIUS, rule.getRadius());
+
+            values.putNull(COLUMN_TIME_START);
+            values.putNull(COLUMN_TIME_END);
+            values.put(COLUMN_DAYS_MASK, 0);
+        }
+
+        int rows = db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(rule.getId())});
+        return rows > 0;
+    }
+
+    // Updates nowActive status for a rule
+    public void updateNowActiveStatus(int ruleId, boolean nowActive) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NOW_ACTIVE, nowActive ? 1 : 0);
+        db.update(TABLE_RULES, values, COLUMN_ID + "=?", new String[]{String.valueOf(ruleId)});
+    }
+
+    // Deletes a specific rule by ID, with log
+    public boolean deleteRuleById(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        Log.d("SmartSilence", "מנסה למחוק חוק עם ID: " + id);
+
+        int rowsAffected = db.delete(TABLE_RULES, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+
+        if (rowsAffected > 0) {
+            Log.d("SmartSilence", "החוק נמחק בהצלחה. rowsAffected = " + rowsAffected);
+            return true;
+        } else {
+            Log.w("SmartSilence", "לא נמצא חוק למחיקה עם ID: " + id);
+            return false;
+        }
+    }
+
+    // Converts bitmask of days into readable string
+    public String getDaysString(int daysMask) {
+        if (daysMask == 0b01111111) {
+            return "כל יום";
+        }
+
+        String[] days = {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"};
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < 7; i++) {
+            if ((daysMask & (1 << i)) != 0) {
+                if (result.length() > 0) result.append(", ");
+                result.append(days[i]);
+            }
+        }
+
+        return result.toString();
+    }
 }

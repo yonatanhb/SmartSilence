@@ -13,7 +13,6 @@ import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 import java.util.List;
 
 public class TimeSchedulerService extends Service {
-
     private Handler handler;
     private Runnable checkTask;
     private RuleDatabaseHelper dbHelper;
@@ -23,56 +22,72 @@ public class TimeSchedulerService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        // Initialize handler for periodic task
         handler = new Handler();
+
+        // Initialize database and audio manager
         dbHelper = new RuleDatabaseHelper(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
+        // Define a task that checks rules every minute
         checkTask = new Runnable() {
             @Override
             public void run() {
                 checkAndApplyRules();
-                handler.postDelayed(this, 60 * 1000); // כל דקה
+                handler.postDelayed(this, 60 * 1000);
             }
         };
 
+        // Start running the check task
         handler.post(checkTask);
     }
 
+    /**
+     * Checks all active time-based rules and updates their nowActive state.
+     * Also updates the shared preference indicating whether a time rule is currently active,
+     * and calls the RuleStateManager to apply the appropriate ringer mode.
+     */
     private void checkAndApplyRules() {
+        // Check if the app is active from SharedPreferences
         boolean isAppActive = getSharedPreferences("settings_prefs", MODE_PRIVATE)
                 .getBoolean("app_active", true);
         if (!isAppActive) return;
 
         boolean timeRuleActive = false;
+
+        // Get all time-based rules marked as active in the database
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
+            // Check if the rule should be active right now (based on time and day)
             boolean isActiveNow = com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
 
-            // עדכון עמודת nowActive עבור כל חוק
+            // Update nowActive column in DB
             rule.setNowActive(isActiveNow);
             dbHelper.updateNowActiveStatus(rule.getId(), isActiveNow);
 
+            // If any rule is currently active, mark it
             if (isActiveNow && !timeRuleActive) {
                 timeRuleActive = true;
             }
         }
 
+        // Save current state to SharedPreferences
         getSharedPreferences("smartsilence_state", MODE_PRIVATE)
                 .edit()
                 .putBoolean("time_rule_active", timeRuleActive)
                 .apply();
 
+        // Update the phone's ringer mode according to current rule state
         com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 
+    //Set the phone's ringer mode directly.
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {
             audioManager.setRingerMode(mode);
-            // שלח התראה על שינוי מצב הצלצול
             com.yonatanh_tald_evem.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
         }
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {

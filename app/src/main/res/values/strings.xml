@@ -12,4 +12,7 @@
     <string name="notification_silence">הטלפון הועבר למצב שקט</string>
     <string name="notification_normal">הטלפון חזר למצב רגיל</string>
     <string name="notification_vibrate">הטלפון במצב רטט</string>
+
+    <string name="active_rules_title">חוקים פעילים כעת:\n%1$s</string>
+
 </resources>

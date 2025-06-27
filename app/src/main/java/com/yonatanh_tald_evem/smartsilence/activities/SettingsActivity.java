@@ -4,43 +4,46 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log; // <-- הוספת ייבוא Log
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
 import com.yonatanh_tald_evem.smartsilence.R;
 
 public class SettingsActivity extends AppCompatActivity {
+    private static final String TAG = "SettingsActivity"; // Tag used for logging
+    private static final String PREFS_NAME = "settings_prefs"; // SharedPreferences file name
 
-    private static final String TAG = "SettingsActivity"; // Tag ללוגים
-    private static final String PREFS_NAME = "settings_prefs";
+    // Keys for preferences
     private static final String KEY_PUSH_ENABLED = "push_enabled";
     private static final String KEY_APP_ACTIVE = "app_active";
-
-    private Switch pushSwitch;
-    private Switch appActiveSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        pushSwitch = findViewById(R.id.switchPush);
-        appActiveSwitch = findViewById(R.id.switchAppActive);
+        // Initialize switches from layout
+        SwitchCompat pushSwitch = findViewById(R.id.switchPush);
+        SwitchCompat appActiveSwitch = findViewById(R.id.switchAppActive);
 
+        // Access SharedPreferences for reading/saving settings
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        // טעינת ערכים מהעדפות
+        // Load saved preferences or use default values
         boolean isPushEnabled = prefs.getBoolean(KEY_PUSH_ENABLED, true);
         boolean isAppActive = prefs.getBoolean(KEY_APP_ACTIVE, true);
 
+        // Set the switch states based on saved values
         pushSwitch.setChecked(isPushEnabled);
         appActiveSwitch.setChecked(isAppActive);
 
-        // שמירת ערכים כאשר יש שינוי + לוג
+        // Listener for push notification switch changes
         pushSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             prefs.edit().putBoolean(KEY_PUSH_ENABLED, isChecked).apply();
             Log.d(TAG, "Push notifications " + (isChecked ? "enabled" : "disabled"));
         });
 
+        // Listener for app active status switch changes
         appActiveSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             prefs.edit().putBoolean(KEY_APP_ACTIVE, isChecked).apply();
             Log.d(TAG, "App active: " + isChecked);

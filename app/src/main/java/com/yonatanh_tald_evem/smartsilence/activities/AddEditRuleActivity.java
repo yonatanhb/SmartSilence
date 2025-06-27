@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,21 +47,25 @@ import java.util.Locale;
 import java.io.IOException;
 
 public class AddEditRuleActivity extends AppCompatActivity {
-
-    private EditText inputRuleName;
+    // UI components
     private RadioGroup ruleTypeGroup;
     private RadioButton radioTime, radioLocation;
     private WeekDaysView weekDaysView;
     private Button btnTimeStart, btnTimeEnd, btnSave;
-    private TextView labelLocationName; // שונה מ-EditText ל-TextView
+    private TextView labelLocationName;
     private EditText inputRadius;
+    private EditText inputRuleName;
     private CardView timeFieldsCard, locationFieldsCard;
 
+    // Database helper
     private RuleDatabaseHelper dbHelper;
+
+    // State variables
     private String timeStart = "", timeEnd = "";
     private boolean isEditing = false;
     private int editingRuleId = -1;
 
+    // Google Maps
     private GoogleMap map;
     private LatLng selectedLatLng;
     private Circle radiusCircle;
@@ -75,6 +80,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         TextView textTitle = findViewById(R.id.textTitle);
 
+        // Check if we are editing an existing rule
         editingRuleId = getIntent().getIntExtra("ruleId", -1);
         isEditing = editingRuleId != -1;
 
@@ -89,19 +95,9 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
         setupMap();
         setupListeners();
-
-        // Check if editing
-        editingRuleId = getIntent().getIntExtra("ruleId", -1);
-        isEditing = editingRuleId != -1;
-
-        if (isEditing) {
-            loadRule(editingRuleId);
-        } else {
-            showTypeFields("time"); // Default
-            radioTime.setChecked(true);
-        }
     }
 
+    // Initializes and configures the Google Map
     private void setupMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -110,11 +106,12 @@ public class AddEditRuleActivity extends AppCompatActivity {
             mapFragment.getMapAsync(googleMap -> {
                 map = googleMap;
 
-                // Configure map UI
+                // Enable map controls
                 map.getUiSettings().setZoomControlsEnabled(true);
                 map.getUiSettings().setZoomGesturesEnabled(true);
                 map.getUiSettings().setMapToolbarEnabled(false);
 
+                // Center map according to existing or default location
                 if (isEditing && selectedLatLng != null) {
                     updateMapMarkerAndCircle();
                     int radius = 100;
@@ -124,7 +121,6 @@ public class AddEditRuleActivity extends AppCompatActivity {
                     } catch (Exception ignored) {}
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng, getZoomLevel(radius)));
                 } else {
-                    // אחרת – תציג מרכז ישראל
                     LatLng israelCenter = new LatLng(31.0461, 34.8516);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(israelCenter, 7));
                 }
@@ -134,7 +130,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
                     map.setMyLocationEnabled(true);
                 }
 
-                // Handle map clicks
+                // Allow user to select location by tapping on map
                 map.setOnMapClickListener(latLng -> {
                     selectedLatLng = latLng;
                     updateMapMarkerAndCircle();
@@ -144,53 +140,41 @@ public class AddEditRuleActivity extends AppCompatActivity {
         }
     }
 
+    // Places marker and circle on selected location
     private void updateMapMarkerAndCircle() {
         if (map == null || selectedLatLng == null) return;
-
-        // Clear previous markers and circles
         map.clear();
-
-        // Add marker
-        map.addMarker(new MarkerOptions()
-                .position(selectedLatLng)
-                .title("מיקום נבחר"));
-
-        // Add radius circle
+        map.addMarker(new MarkerOptions().position(selectedLatLng).title("מיקום נבחר"));
         updateRadiusCircle();
     }
 
+    // Draws the radius circle on the map
     private void updateRadiusCircle() {
         if (map == null || selectedLatLng == null) return;
 
-        // Remove previous circle
-        if (radiusCircle != null) {
-            radiusCircle.remove();
-        }
+        if (radiusCircle != null) radiusCircle.remove();
 
-        // Get radius from input
-        int radius = 100; // Default
+        int radius = 100;
         try {
             String radiusText = inputRadius.getText().toString().trim();
             if (!radiusText.isEmpty()) {
                 radius = Integer.parseInt(radiusText);
             }
         } catch (NumberFormatException e) {
-            radius = 100;
+            Log.e("LocationService", "Number Format Exception", e);
         }
 
-        // Create new circle
         radiusCircle = map.addCircle(new CircleOptions()
                 .center(selectedLatLng)
                 .radius(radius)
                 .strokeColor(Color.parseColor("#4285F4"))
                 .strokeWidth(3)
-                .fillColor(Color.parseColor("#204285F4"))); // Semi-transparent blue
+                .fillColor(Color.parseColor("#204285F4")));
 
-        // Adjust camera to show the circle
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng,
-                getZoomLevel(radius)));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng, getZoomLevel(radius)));
     }
 
+    // Calculates map zoom level based on radius
     private float getZoomLevel(int radius) {
         // Calculate appropriate zoom level based on radius
         if (radius <= 50) return 17f;
@@ -201,6 +185,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         else return 12f;
     }
 
+    // Uses reverse geocoding to get a human-readable address for a location
     private void updateLocationName(LatLng latLng) {
         new Thread(() -> {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -210,29 +195,28 @@ public class AddEditRuleActivity extends AppCompatActivity {
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
 
-                    // בנה כתובת מלאה
                     StringBuilder sb = new StringBuilder();
                     if (address.getThoroughfare() != null) {
-                        sb.append(address.getThoroughfare()); // רחוב
+                        sb.append(address.getThoroughfare()); // street
                     }
                     if (address.getSubThoroughfare() != null) {
                         if (sb.length() > 0) sb.append(" ");
-                        sb.append(address.getSubThoroughfare()); // מספר בית
+                        sb.append(address.getSubThoroughfare()); // number
                     }
                     if (address.getLocality() != null) {
                         if (sb.length() > 0) sb.append(", ");
-                        sb.append(address.getLocality()); // עיר
+                        sb.append(address.getLocality()); // city
                     }
                     if (address.getCountryName() != null) {
                         if (sb.length() > 0) sb.append(", ");
-                        sb.append(address.getCountryName()); // מדינה
+                        sb.append(address.getCountryName()); // country
                     }
                     if (sb.length() > 0) {
                         placeName = sb.toString();
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("LocationService", "Error during location update", e);
             }
 
             final String finalPlaceName = placeName;
@@ -240,6 +224,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         }).start();
     }
 
+    // Binds all views from XML layout to variables
     private void bindViews() {
         inputRuleName = findViewById(R.id.inputRuleName);
         ruleTypeGroup = findViewById(R.id.ruleTypeGroup);
@@ -255,6 +240,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         locationFieldsCard = findViewById(R.id.locationFieldsCard);
     }
 
+    // Sets up button click listeners and other UI events
     private void setupListeners() {
         weekDaysView.setSelectable(true);
 
@@ -285,6 +271,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         });
     }
 
+    // Displays the appropriate input fields based on the selected rule type (time or location)
     private void showTypeFields(String type) {
         if ("time".equals(type)) {
             animateCardVisibility(timeFieldsCard, true);
@@ -292,13 +279,13 @@ public class AddEditRuleActivity extends AppCompatActivity {
         } else {
             animateCardVisibility(timeFieldsCard, false);
             animateCardVisibility(locationFieldsCard, true);
-            // איפוס הלייבל כשעוברים לחוק מיקום
             if (selectedLatLng == null) {
                 labelLocationName.setText("בחר מיקום מהמפה");
             }
         }
     }
 
+    // Animates showing or hiding a CardView with fade and scale effects
     private void animateCardVisibility(CardView card, boolean show) {
         if (show && card.getVisibility() == View.VISIBLE) return;
         if (!show && card.getVisibility() == View.GONE) return;
@@ -335,6 +322,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         }
     }
 
+    // Opens a time picker dialog and updates the start or end time based on user input
     private void showTimePicker(boolean isStart) {
         Calendar cal = Calendar.getInstance();
         int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -355,11 +343,11 @@ public class AddEditRuleActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Loads a rule from the database and populates the UI with its data
     private void loadRule(int id) {
         RuleModel rule = dbHelper.getRuleById(id);
 
         if (rule == null) {
-            // מקרה קצה: הגענו לערוך חוק שלא קיים (אולי נמחק בינתיים)
             Toast.makeText(this, "החוק לא נמצא", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -377,7 +365,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
             btnTimeEnd.setText(timeEnd);
             weekDaysView.setDaysMask(rule.getDaysMask());
 
-        } else if ("location".equals(rule.getType())) { // עדיף להשתמש ב-else if לבהירות
+        } else if ("location".equals(rule.getType())) {
             radioLocation.setChecked(true);
             showTypeFields("location");
 
@@ -386,7 +374,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
 
             // Show location on map
             selectedLatLng = new LatLng(rule.getLatitude(), rule.getLongitude());
-            if (map != null && selectedLatLng != null) {
+            if (map != null) {
                 updateMapMarkerAndCircle();
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng,
                         getZoomLevel(rule.getRadius())));
@@ -394,6 +382,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         }
     }
 
+    // Validates and saves a new or edited rule to the database
     private void saveRule() {
         String name = inputRuleName.getText().toString().trim();
         String type = radioTime.isChecked() ? "time" : "location";
@@ -428,12 +417,11 @@ public class AddEditRuleActivity extends AppCompatActivity {
                 rule.setLongitude(selectedLatLng.longitude);
                 rule.setRadius(Integer.parseInt(inputRadius.getText().toString()));
             } catch (Exception e) {
-                Toast.makeText(this, "שדות מיקום לא תקינים", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "שדות מיקום לא תקינים - הזן רדיוס תקין", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        // Animate save button
         animateSaveButton();
 
         if (isEditing) {
@@ -464,6 +452,7 @@ public class AddEditRuleActivity extends AppCompatActivity {
         }
     }
 
+    // Animates a click effect on the save button to provide visual feedback
     private void animateSaveButton() {
         btnSave.setEnabled(false);
 

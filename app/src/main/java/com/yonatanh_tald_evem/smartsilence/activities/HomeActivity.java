@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Build;
@@ -31,74 +30,49 @@ import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
 import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
 import com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService;
 import com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService;
-import com.yonatanh_tald_evem.smartsilence.utils.TimeUtils;
 import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
-
+    // UI components
     private TextView ringerStatusTextView;
     private TextView activeRulesTextView;
     private TextView nextRuleTextView;
     private ImageView ringerStatusIcon;
+
+    // System and database helpers
     private AudioManager audioManager;
     private RuleDatabaseHelper dbHelper;
+
+    // State flags
     private boolean ringerModeReceiverRegistered = false;
     private boolean locationPermissionRequested = false;
 
+    // Used to store ID of the next scheduled rule
     private int nextRuleId = -1;
 
-    // ל־Android 10 ומעלה – ACCESS_BACKGROUND_LOCATION נדרש בנפרד
+    // Background location permission is required
     private final boolean needBackgroundLocation =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-
-    private final BroadcastReceiver ringerModeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
-                displayCurrentRingerMode();
-            }
-        }
-    };
-
-    // בקשת הרשאות מיקום
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                boolean fineGranted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION));
-                boolean backgroundGranted = !needBackgroundLocation ||
-                        Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_BACKGROUND_LOCATION));
-
-                if (fineGranted && backgroundGranted) {
-                    locationPermissionRequested = false;
-                    startAllSmartSilenceServices();
-                } else {
-                    showLocationPermissionDialog();
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // הגדרת Toolbar
+        // Set up toolbar and status bar color
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primary_color));
 
-        // אתחול רכיבי ממשק
+        // Initialize UI components
         activeRulesTextView = findViewById(R.id.activeRulesTextView);
         ringerStatusTextView = findViewById(R.id.ringerStatusTextView);
         nextRuleTextView     = findViewById(R.id.nextRuleTextView);
         ringerStatusIcon     = findViewById(R.id.ringerStatusIcon);
 
-        // אתחול שירותים ובסיס נתונים
+        // Initialize audio manager and database helper
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         dbHelper     = new RuleDatabaseHelper(this);
         setupButtonListeners();
@@ -106,43 +80,59 @@ public class HomeActivity extends AppCompatActivity {
         displayNextScheduledRule();
     }
 
-    private void displayCurrentlyActiveRules() {
-        StringBuilder activeRulesText = new StringBuilder();
-        List<RuleModel> activeRules = dbHelper.getCurrentlyActiveRules();
+    // Resume lifecycle: check permissions, start services, register broadcast
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        for (RuleModel rule : activeRules) {
-            String name = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
-                    ? rule.getRuleName()
-                    : (rule.getType().equals("time") ? "כלל זמן ללא שם" : "כלל מיקום ללא שם");
-
-            if ("time".equals(rule.getType())) {
-                activeRulesText.append("• ")
-                        .append(name)
-                        .append(" (")
-                        .append(rule.getTimeStart()).append(" - ").append(rule.getTimeEnd()).append(")\n");
-            } else if ("location".equals(rule.getType())) {
-                activeRulesText.append("• ")
-                        .append(name)
-                        .append(" (מיקום: ")
-                        .append(rule.getLocationName() != null ? rule.getLocationName() : "לא מוגדר")
-                        .append(")\n");
-            }
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (!nm.isNotificationPolicyAccessGranted()) {
+            showPermissionDialog();
+            return;
         }
 
-        // עדכון הטקסט
-        if (activeRulesText.length() > 0) {
-            activeRulesTextView.setText("חוקים פעילים כעת:\n" + activeRulesText.toString().trim());
-        } else {
-            activeRulesTextView.setText("אין חוקים פעילים כעת.");
+        if (!hasLocationPermissions()) {
+            if (!locationPermissionRequested) {
+                requestLocationPermissions();
+                locationPermissionRequested = true;
+            } else {
+                showLocationPermissionDialog();
+            }
+            return;
+        }
+
+        locationPermissionRequested = false;
+
+        startAllSmartSilenceServices();
+
+        if (!ringerModeReceiverRegistered) {
+            registerReceiver(ringerModeReceiver, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+            ringerModeReceiverRegistered = true;
+        }
+
+        displayCurrentRingerMode();
+        displayNextScheduledRule();
+        displayCurrentlyActiveRules();
+    }
+
+    // Pause lifecycle: unregister broadcast receiver
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (ringerModeReceiverRegistered) {
+            unregisterReceiver(ringerModeReceiver);
+            ringerModeReceiverRegistered = false;
         }
     }
 
+    // Inflate menu (About, Settings, Exit)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu, menu);
         return true;
     }
 
+    // Handle menu item selection
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -162,6 +152,60 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Check if all necessary location permissions are granted
+    private boolean hasLocationPermissions() {
+        boolean fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean background = !needBackgroundLocation ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return fine && background;
+    }
+
+    // Request foreground and (if needed) background location permissions
+    private void requestLocationPermissions() {
+        if (needBackgroundLocation) {
+            locationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            });
+        } else {
+            locationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            });
+        }
+    }
+
+    // Handles location permission requests
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                boolean fineGranted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION));
+                boolean backgroundGranted = !needBackgroundLocation ||
+                        Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_BACKGROUND_LOCATION));
+
+                if (fineGranted && backgroundGranted) {
+                    locationPermissionRequested = false;
+                    startAllSmartSilenceServices();
+                } else {
+                    showLocationPermissionDialog();
+                }
+            });
+
+    // Broadcast receiver to listen for changes in ringer mode (silent/vibrate/normal)
+    private final BroadcastReceiver ringerModeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+                displayCurrentRingerMode();
+            }
+        }
+    };
+
+    // Start both time and location-based monitoring services
+    private void startAllSmartSilenceServices() {
+        ContextCompat.startForegroundService(this, new Intent(this, LocationMonitorService.class));
+        startService(new Intent(this, TimeSchedulerService.class));
+    }
+
+    // Set up button listeners for adding or editing rules
     private void setupButtonListeners() {
         MaterialButton addRuleButton = findViewById(R.id.addRuleButton);
         addRuleButton.setOnClickListener(v -> {
@@ -179,159 +223,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void showAboutDialog() {
-        // איסוף מידע על האפליקציה והמכשיר
-        String appName = getString(R.string.app_name);
-        String packageName = getPackageName();
-
-        // פרטי מערכת ההפעלה
-        String osVersion = "Android " + Build.VERSION.RELEASE + " API " +Build.VERSION.SDK_INT;
-
-        // תאריך הגשה
-        String submissionDate = "29/06/2025";
-        String developers = "יונתן חבה, טל דניאל, איב בן ישעיה";
-
-        // בניית הודעת האודות
-        String aboutMessage = String.format(
-                "שם האפליקציה: %s\n" +
-                        "מזהה האפליקציה: %s\n" +
-                        "מערכת הפעלה: %s\n\n" +
-                        "פותח על ידי: %s\n" +
-                        "תאריך הגשה: %s",
-                appName,
-                packageName,
-                osVersion,
-                developers,
-                submissionDate
-        );
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("אודות האפליקציה")
-                .setMessage(aboutMessage)
-                .setPositiveButton("סגור", null)
-                .create();
-
-        // הגדרת כיוון RTL לכל החלונית
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-        }
-
-        dialog.show();
-    }
-
-    private void showExitDialog() {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("יציאה מהאפליקציה")
-                .setMessage("האם אתה בטוח שברצונך לצאת מהאפליקציה?")
-                .setPositiveButton("יציאה", (d, w) -> finishAffinity())
-                .setNegativeButton("ביטול", null)
-                .create();
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-        }
-
-        dialog.show();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (!nm.isNotificationPolicyAccessGranted()) {
-            showPermissionDialog();
-            return;
-        }
-
-        if (!hasLocationPermissions()) {
-            if (!locationPermissionRequested) {
-                requestLocationPermissions();
-                locationPermissionRequested = true;
-            } else {
-                // דיאלוג – תציג רק אם אין הרשאה
-                showLocationPermissionDialog();
-            }
-            return;
-        }
-
-        // ברגע שיש הרשאות — אפס את הדגל!
-        locationPermissionRequested = false;
-
-        startAllSmartSilenceServices();
-
-        if (!ringerModeReceiverRegistered) {
-            registerReceiver(ringerModeReceiver, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
-            ringerModeReceiverRegistered = true;
-        }
-
-        displayCurrentRingerMode();
-        displayNextScheduledRule();
-        displayCurrentlyActiveRules();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (ringerModeReceiverRegistered) {
-            unregisterReceiver(ringerModeReceiver);
-            ringerModeReceiverRegistered = false;
-        }
-    }
-
-    private boolean hasLocationPermissions() {
-        boolean fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean background = !needBackgroundLocation ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        return fine && background;
-    }
-
-    private void requestLocationPermissions() {
-        if (needBackgroundLocation) {
-            locationPermissionLauncher.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            });
-        } else {
-            locationPermissionLauncher.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            });
-        }
-    }
-
-    private void startAllSmartSilenceServices() {
-        // Start both services safely (לא תיפתח פעמיים, גם אם תנסה להפעיל שוב)
-        ContextCompat.startForegroundService(this, new Intent(this, LocationMonitorService.class));
-        startService(new Intent(this, TimeSchedulerService.class));
-    }
-
-    private void showPermissionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("הרשאת 'נא לא להפריע'")
-                .setMessage("כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות 'נא לא להפריע'.")
-                .setPositiveButton("לאפשר", (d, w) -> {
-                    startActivity(new Intent(
-                            android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS
-                    ));
-                })
-                .setNegativeButton("בטל", null)
-                .show();
-    }
-
-    private void showLocationPermissionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("דרושה הרשאת מיקום ברקע")
-                .setMessage("כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר 'גישה למיקום תמיד'.")
-                .setPositiveButton("פתח הגדרות", (d, w) -> {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
-                    startActivity(intent);
-                })
-                .setNegativeButton("ביטול", null)
-                .show();
-    }
-
+    // Display current ringer mode and update UI
     private void displayCurrentRingerMode() {
         int mode = audioManager.getRingerMode();
         String status;
@@ -362,6 +254,39 @@ public class HomeActivity extends AppCompatActivity {
         ringerStatusIcon.setColorFilter(tintColor);
     }
 
+    // Display list of currently active rules (time or location-based)
+    private void displayCurrentlyActiveRules() {
+        StringBuilder activeRulesText = new StringBuilder();
+        List<RuleModel> activeRules = dbHelper.getCurrentlyActiveRules();
+
+        for (RuleModel rule : activeRules) {
+            String name = rule.getRuleName() != null && !rule.getRuleName().isEmpty()
+                    ? rule.getRuleName()
+                    : (rule.getType().equals("time") ? "כלל זמן ללא שם" : "כלל מיקום ללא שם");
+
+            if ("time".equals(rule.getType())) {
+                activeRulesText.append("• ")
+                        .append(name)
+                        .append(" (")
+                        .append(rule.getTimeStart()).append(" - ").append(rule.getTimeEnd()).append(")\n");
+            } else if ("location".equals(rule.getType())) {
+                activeRulesText.append("• ")
+                        .append(name)
+                        .append(" (מיקום: ")
+                        .append(rule.getLocationName() != null ? rule.getLocationName() : "לא מוגדר")
+                        .append(")\n");
+            }
+        }
+
+        if (activeRulesText.length() > 0) {
+            String activeText = activeRulesText.toString().trim();
+            activeRulesTextView.setText(getString(R.string.active_rules_title, activeText));
+        } else {
+            activeRulesTextView.setText("אין חוקים פעילים כעת.");
+        }
+    }
+
+    // Display the next scheduled time-based rule
     private void displayNextScheduledRule() {
         RuleModel nextRule = dbHelper.getNextScheduledTimeRule(); // תשתמש ברשימת העתידיים
         MaterialButton editRuleButton = findViewById(R.id.editRuleButton);
@@ -383,6 +308,84 @@ public class HomeActivity extends AppCompatActivity {
             nextRuleId = -1;
         }
     }
+
+    // Show app and developer info
+    private void showAboutDialog() {
+        String appName = getString(R.string.app_name);
+        String packageName = getPackageName();
+        String osVersion = "Android " + Build.VERSION.RELEASE + " API " +Build.VERSION.SDK_INT;
+        String submissionDate = "29/06/2025";
+        String developers = "יונתן חבה, טל דניאל, איב בן ישעיה";
+
+        String aboutMessage = String.format(
+                "שם האפליקציה: %s\n" +
+                        "מזהה האפליקציה: %s\n" +
+                        "מערכת הפעלה: %s\n\n" +
+                        "פותח על ידי: %s\n" +
+                        "תאריך הגשה: %s",
+                appName,
+                packageName,
+                osVersion,
+                developers,
+                submissionDate
+        );
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("אודות האפליקציה")
+                .setMessage(aboutMessage)
+                .setPositiveButton("סגור", null)
+                .create();
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        }
+
+        dialog.show();
+    }
+
+    // Show confirmation dialog before exiting app
+    private void showExitDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("יציאה מהאפליקציה")
+                .setMessage("האם אתה בטוח שברצונך לצאת מהאפליקציה?")
+                .setPositiveButton("יציאה", (d, w) -> finishAffinity())
+                .setNegativeButton("ביטול", null)
+                .create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        }
+
+        dialog.show();
+    }
+
+    // Show dialog to request "Do Not Disturb" permission
+    private void showPermissionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("הרשאת 'נא לא להפריע'")
+                .setMessage("כדי שהאפליקציה תוכל להעביר את הטלפון למצב שקט, יש לאפשר גישה להגדרות 'נא לא להפריע'.")
+                .setPositiveButton("לאפשר", (d, w) -> startActivity(
+                        new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)))
+                .setNegativeButton("בטל", null)
+                .show();
+    }
+
+    // Show dialog guiding user to grant background location access
+    private void showLocationPermissionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("דרושה הרשאת מיקום ברקע")
+                .setMessage("כדי שהאפליקציה תוכל לעבור אוטומטית למצב שקט גם כשאינה פתוחה, יש להיכנס להגדרות האפליקציה ולאפשר 'גישה למיקום תמיד'.")
+                .setPositiveButton("פתח הגדרות", (d, w) -> {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
+
+
 
 
 }
