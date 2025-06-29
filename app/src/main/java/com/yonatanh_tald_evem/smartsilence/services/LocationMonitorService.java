@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.media.AudioManager;
 import android.os.IBinder;
@@ -71,6 +72,29 @@ public class LocationMonitorService extends Service {
     // Return START_STICKY to keep service alive unless explicitly stopped
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        boolean forceRefresh = intent != null && intent.getBooleanExtra("forceRefresh", false);
+
+        if (forceRefresh) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED ||
+                    androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                fusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(location -> {
+                            if (location != null) {
+                                Log.d("SmartSilence", "Force refresh triggered after rule deletion");
+                                checkAndApplyLocationRules(location);
+                            } else {
+                                Log.w("SmartSilence", "No last known location available for forceRefresh");
+                            }
+                        });
+
+            } else {
+                Log.w("SmartSilence", "Location permission not granted for forceRefresh");
+            }
+        }
+
         return START_STICKY;
     }
 

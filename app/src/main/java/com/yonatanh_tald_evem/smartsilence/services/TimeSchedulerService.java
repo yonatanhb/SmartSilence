@@ -81,6 +81,33 @@ public class TimeSchedulerService extends Service {
         com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 
+    public static void scheduleImmediateCheck(Context context) {
+        new Thread(() -> {
+            RuleDatabaseHelper dbHelper = new RuleDatabaseHelper(context);
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+            boolean isAppActive = context.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
+                    .getBoolean("app_active", true);
+            if (!isAppActive) return;
+
+            boolean timeRuleActive = false;
+            List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
+            for (RuleModel rule : timeRules) {
+                boolean isActiveNow = com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
+                rule.setNowActive(isActiveNow);
+                dbHelper.updateNowActiveStatus(rule.getId(), isActiveNow);
+                if (isActiveNow && !timeRuleActive) timeRuleActive = true;
+            }
+
+            context.getSharedPreferences("smartsilence_state", Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("time_rule_active", timeRuleActive)
+                    .apply();
+
+            com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(context);
+        }).start();
+    }
+
     //Set the phone's ringer mode directly.
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {

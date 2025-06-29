@@ -430,17 +430,9 @@ public class AddEditRuleActivity extends AppCompatActivity {
             boolean updated = dbHelper.updateRuleById(rule);
             if (updated) {
                 Toast.makeText(this, R.string.rule_updated_success, Toast.LENGTH_SHORT).show();
-
-                startService(new Intent(this, com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class));
-                androidx.core.content.ContextCompat.startForegroundService(
-                        this,
-                        new Intent(this, com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class)
-                );
-
-                setResult(RESULT_OK);
-                finish();
             } else {
                 Toast.makeText(this, R.string.rule_update_failed, Toast.LENGTH_SHORT).show();
+                return;
             }
         } else {
             if ("time".equals(type)) {
@@ -456,9 +448,19 @@ public class AddEditRuleActivity extends AppCompatActivity {
                 );
             }
             Toast.makeText(this, R.string.rule_added_successfully, Toast.LENGTH_SHORT).show();
-            finish();
         }
+
+        startService(new Intent(this, com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class));
+        Intent locationIntent = new Intent(this, com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class);
+        locationIntent.putExtra("forceRefresh", true);
+        androidx.core.content.ContextCompat.startForegroundService(this, locationIntent);
+
+        com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.scheduleImmediateCheck(this);
+
+        setResult(RESULT_OK);
+        finish();
     }
+
 
     // Animates a click effect on the save button to provide visual feedback
     private void animateSaveButton() {
