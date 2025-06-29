@@ -1,5 +1,5 @@
 
-package com.yonatanh_tald_evem.smartsilence.activities;
+package com.yonatanh_tald_eveb.smartsilence.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -26,10 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
-import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.views.WeekDaysView;
 
 import java.util.Calendar;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -450,12 +450,12 @@ public class AddEditRuleActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.rule_added_successfully, Toast.LENGTH_SHORT).show();
         }
 
-        startService(new Intent(this, com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class));
-        Intent locationIntent = new Intent(this, com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class);
+        startService(new Intent(this, com.yonatanh_tald_eveb.smartsilence.services.TimeSchedulerService.class));
+        Intent locationIntent = new Intent(this, com.yonatanh_tald_eveb.smartsilence.services.LocationMonitorService.class);
         locationIntent.putExtra("forceRefresh", true);
         androidx.core.content.ContextCompat.startForegroundService(this, locationIntent);
 
-        com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.scheduleImmediateCheck(this);
+        com.yonatanh_tald_eveb.smartsilence.services.TimeSchedulerService.scheduleImmediateCheck(this);
 
         setResult(RESULT_OK);
         finish();

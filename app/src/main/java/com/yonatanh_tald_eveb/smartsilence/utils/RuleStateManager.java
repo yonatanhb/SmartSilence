@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.utils;
+package com.yonatanh_tald_eveb.smartsilence.utils;
 
 import android.content.Context;
 import android.media.AudioManager;

@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.activities;
+package com.yonatanh_tald_eveb.smartsilence.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -30,12 +30,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
-import com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService;
-import com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService;
-import com.yonatanh_tald_evem.smartsilence.views.WeekDaysView;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.services.TimeSchedulerService;
+import com.yonatanh_tald_eveb.smartsilence.services.LocationMonitorService;
+import com.yonatanh_tald_eveb.smartsilence.views.WeekDaysView;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.yonatanh_tald_evem.smartsilence'
+    namespace 'com.yonatanh_tald_eveb.smartsilence'
     compileSdk 35
 
     def localProperties = new Properties()
@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.yonatanh_tald_evem.smartsilence"
+        applicationId "com.yonatanh_tald_eveb.smartsilence"
         minSdk 26
         targetSdk 35
         versionCode 1

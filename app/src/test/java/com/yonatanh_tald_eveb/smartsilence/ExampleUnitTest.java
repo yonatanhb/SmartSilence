@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence;
+package com.yonatanh_tald_eveb.smartsilence;
 
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-package com.yonatanh_tald_evem.smartsilence.utils;
+package com.yonatanh_tald_eveb.smartsilence.utils;
 
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

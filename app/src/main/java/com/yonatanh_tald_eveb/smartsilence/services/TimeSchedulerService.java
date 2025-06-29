@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.services;
+package com.yonatanh_tald_eveb.smartsilence.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -7,8 +7,8 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
 
-import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class TimeSchedulerService extends Service {
         List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
         for (RuleModel rule : timeRules) {
             // Check if the rule should be active right now (based on time and day)
-            boolean isActiveNow = com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
+            boolean isActiveNow = com.yonatanh_tald_eveb.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
 
             // Update nowActive column in DB
             rule.setNowActive(isActiveNow);
@@ -78,7 +78,7 @@ public class TimeSchedulerService extends Service {
                 .apply();
 
         // Update the phone's ringer mode according to current rule state
-        com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
+        com.yonatanh_tald_eveb.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 
     public static void scheduleImmediateCheck(Context context) {
@@ -93,7 +93,7 @@ public class TimeSchedulerService extends Service {
             boolean timeRuleActive = false;
             List<RuleModel> timeRules = dbHelper.getActiveTimeRules();
             for (RuleModel rule : timeRules) {
-                boolean isActiveNow = com.yonatanh_tald_evem.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
+                boolean isActiveNow = com.yonatanh_tald_eveb.smartsilence.utils.TimeUtils.isRuleActiveNow(rule);
                 rule.setNowActive(isActiveNow);
                 dbHelper.updateNowActiveStatus(rule.getId(), isActiveNow);
                 if (isActiveNow && !timeRuleActive) timeRuleActive = true;
@@ -104,7 +104,7 @@ public class TimeSchedulerService extends Service {
                     .putBoolean("time_rule_active", timeRuleActive)
                     .apply();
 
-            com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(context);
+            com.yonatanh_tald_eveb.smartsilence.utils.RuleStateManager.updateRingerMode(context);
         }).start();
     }
 
@@ -112,7 +112,7 @@ public class TimeSchedulerService extends Service {
     private void setRingerMode(int mode) {
         if (audioManager.getRingerMode() != mode) {
             audioManager.setRingerMode(mode);
-            com.yonatanh_tald_evem.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
+            com.yonatanh_tald_eveb.smartsilence.utils.NotificationHelper.showRingerModeChanged(this, mode);
         }
     }
 

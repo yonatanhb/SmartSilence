@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.database.models;
+package com.yonatanh_tald_eveb.smartsilence.database.models;
 
 public class RuleModel {
 

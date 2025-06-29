@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.activities;
+package com.yonatanh_tald_eveb.smartsilence.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
 
 import java.util.List;
 
@@ -158,11 +158,11 @@ public class RulesActivity extends AppCompatActivity {
 
                                             Context context = holder.itemView.getContext();
 
-                                            context.startService(new Intent(context, com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.class));
+                                            context.startService(new Intent(context, com.yonatanh_tald_eveb.smartsilence.services.TimeSchedulerService.class));
 
-                                            com.yonatanh_tald_evem.smartsilence.services.TimeSchedulerService.scheduleImmediateCheck(context);
+                                            com.yonatanh_tald_eveb.smartsilence.services.TimeSchedulerService.scheduleImmediateCheck(context);
 
-                                            Intent locationIntent = new Intent(context, com.yonatanh_tald_evem.smartsilence.services.LocationMonitorService.class);
+                                            Intent locationIntent = new Intent(context, com.yonatanh_tald_eveb.smartsilence.services.LocationMonitorService.class);
                                             locationIntent.putExtra("forceRefresh", true);
                                             androidx.core.content.ContextCompat.startForegroundService(context, locationIntent);
 

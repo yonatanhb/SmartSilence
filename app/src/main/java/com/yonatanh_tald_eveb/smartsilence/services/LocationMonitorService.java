@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.services;
+package com.yonatanh_tald_eveb.smartsilence.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -21,9 +21,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.database.RuleDatabaseHelper;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.database.RuleDatabaseHelper;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
 
 import java.util.List;
 
@@ -201,6 +201,6 @@ public class LocationMonitorService extends Service {
                 .apply();
 
         // Apply audio mode change if necessary
-        com.yonatanh_tald_evem.smartsilence.utils.RuleStateManager.updateRingerMode(this);
+        com.yonatanh_tald_eveb.smartsilence.utils.RuleStateManager.updateRingerMode(this);
     }
 }

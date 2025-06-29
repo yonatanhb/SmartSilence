@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.utils;
+package com.yonatanh_tald_eveb.smartsilence.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,8 +11,8 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.activities.HomeActivity;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.activities.HomeActivity;
 
 public class NotificationHelper {
     //Shows a notification to inform the user that the ringer mode has changed.

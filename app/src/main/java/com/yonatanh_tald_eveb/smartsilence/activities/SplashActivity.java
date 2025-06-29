@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.activities;
+package com.yonatanh_tald_eveb.smartsilence.activities;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.R;
 
 public class SplashActivity extends AppCompatActivity {
     private static final long SPLASH_DURATION_MS = 3000;

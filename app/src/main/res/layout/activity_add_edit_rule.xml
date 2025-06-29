@@ -216,7 +216,7 @@
                     android:textAlignment="viewStart"
                     android:gravity="start" />
 
-                <com.yonatanh_tald_evem.smartsilence.views.WeekDaysView
+                <com.yonatanh_tald_eveb.smartsilence.views.WeekDaysView
                     android:id="@+id/weekDaysView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

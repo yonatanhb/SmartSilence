@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.activities;
+package com.yonatanh_tald_eveb.smartsilence.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.widget.CompoundButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
-import com.yonatanh_tald_evem.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.R;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SettingsActivity"; // Tag used for logging

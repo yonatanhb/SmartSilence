@@ -1,4 +1,4 @@
-package com.yonatanh_tald_evem.smartsilence.database;
+package com.yonatanh_tald_eveb.smartsilence.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.yonatanh_tald_evem.smartsilence.R;
-import com.yonatanh_tald_evem.smartsilence.database.models.RuleModel;
+import com.yonatanh_tald_eveb.smartsilence.R;
+import com.yonatanh_tald_eveb.smartsilence.database.models.RuleModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
