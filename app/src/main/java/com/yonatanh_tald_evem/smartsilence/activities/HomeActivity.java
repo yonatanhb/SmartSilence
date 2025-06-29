@@ -1,6 +1,7 @@
 package com.yonatanh_tald_evem.smartsilence.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -41,7 +42,6 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity {
     // UI components
     private TextView ringerStatusTextView;
-    private TextView activeRulesTextView;
     private TextView nextRuleTextView;
     private ImageView ringerStatusIcon;
 
@@ -95,6 +95,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // Resume lifecycle: check permissions, start services, register broadcast
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onResume() {
         super.onResume();
@@ -124,7 +125,6 @@ public class HomeActivity extends AppCompatActivity {
             ringerModeReceiverRegistered = true;
         }
 
-        // --- קליטה לשידור שינוי חוקים פעילים ---
         if (!activeRulesChangedReceiverRegistered) {
             IntentFilter filter = new IntentFilter("com.yonatanh_tald_evem.smartsilence.ACTION_ACTIVE_RULES_CHANGED");
             activeRulesChangedReceiver = new BroadcastReceiver() {
@@ -151,7 +151,6 @@ public class HomeActivity extends AppCompatActivity {
             unregisterReceiver(ringerModeReceiver);
             ringerModeReceiverRegistered = false;
         }
-        // ביטול הרשמה ל־activeRulesChangedReceiver
         if (activeRulesChangedReceiverRegistered && activeRulesChangedReceiver != null) {
             unregisterReceiver(activeRulesChangedReceiver);
             activeRulesChangedReceiverRegistered = false;
@@ -298,9 +297,7 @@ public class HomeActivity extends AppCompatActivity {
         activeRulesContainer.removeAllViews();
 
         if (activeRules.isEmpty()) {
-            // הצגת הודעת "אין חוקים פעילים"
             noActiveRulesLayout.setVisibility(View.VISIBLE);
-            // activeRulesContainer.addView(noActiveRulesLayout); // למחוק שורה זו
         } else {
             noActiveRulesLayout.setVisibility(View.GONE);
 
@@ -313,7 +310,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private View createActiveRuleItemView(RuleModel rule) {
-        // קונטיינר חיצוני (שורה)
         LinearLayout ruleContainer = new LinearLayout(this);
         LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -326,7 +322,6 @@ public class HomeActivity extends AppCompatActivity {
         ruleContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_active_rule_item));
         ruleContainer.setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12));
 
-        // *** אייקון סוג החוק - בצד שמאל ***
         ImageView ruleIcon = new ImageView(this);
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dpToPx(32), dpToPx(32));
         iconParams.setMarginEnd(dpToPx(12));
@@ -340,16 +335,14 @@ public class HomeActivity extends AppCompatActivity {
             ruleIcon.setColorFilter(ContextCompat.getColor(this, R.color.location_rule_color));
         }
 
-        // *** קונטיינר לטקסטים (שם למעלה, פרטים מתחת) ***
         LinearLayout textContainer = new LinearLayout(this);
         LinearLayout.LayoutParams textContainerParams = new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         );
         textContainer.setLayoutParams(textContainerParams);
         textContainer.setOrientation(LinearLayout.VERTICAL);
-        textContainer.setGravity(Gravity.END); // יישור לימין
+        textContainer.setGravity(Gravity.END);
 
-        // שם החוק (למעלה)
         TextView ruleNameText = new TextView(this);
         ruleNameText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -364,7 +357,6 @@ public class HomeActivity extends AppCompatActivity {
         ruleNameText.setTypeface(null, Typeface.BOLD);
         ruleNameText.setGravity(Gravity.END);
 
-        // פרטי החוק (מתחת לשם)
         TextView ruleDetailsText = new TextView(this);
         LinearLayout.LayoutParams detailsParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -387,15 +379,12 @@ public class HomeActivity extends AppCompatActivity {
         ruleDetailsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         ruleDetailsText.setGravity(Gravity.END);
 
-        // הוספת הטקסטים לקונטיינר
         textContainer.addView(ruleNameText);
         textContainer.addView(ruleDetailsText);
 
-        // סדר: קודם קונטיינר טקסט, אחריו אייקון בצד שמאל
         ruleContainer.addView(textContainer);
         ruleContainer.addView(ruleIcon);
 
-        // אנימציה
         ruleContainer.setAlpha(0f);
         ruleContainer.animate()
                 .alpha(1f)
@@ -407,7 +396,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    // פונקציית עזר להמרת dp לפיקסלים
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
@@ -500,7 +488,7 @@ public class HomeActivity extends AppCompatActivity {
                 .setMessage(R.string.location_permission_message)
                 .setPositiveButton(R.string.open_settings, (d, w) -> {
                     Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(android.net.Uri.parse(R.string.package_word + getPackageName()));
+                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
                     startActivity(intent);
                 })
                 .setNegativeButton(R.string.exit_dialog_cancel, null)
